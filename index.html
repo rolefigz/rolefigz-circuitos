@@ -408,7 +408,7 @@
     ].map((c, i) => ({ ...c, round: i + 1, path: TRACKS[i], slug: SLUGS[i] }));
 
     // Maintained by herramientas/recortar_fondo.py: circuits with a photo in circuiti/<slug>.webp.
-    const PHOTOS = ["monza"];
+    const PHOTOS = ["shanghai","suzuka","sakhir","jeddah","miami","montreal","monaco","barcelona","silverstone","spa","zandvoort","monza"];
     CIRCUITS.forEach(c => { if (PHOTOS.includes(c.slug)) c.photo = "circuiti/" + c.slug + ".webp"; });
 
     const SIZES = [

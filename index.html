@@ -101,6 +101,10 @@
     .detail{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);align-items:center;gap:clamp(24px,5vw,80px);padding:clamp(24px,5vh,56px) var(--gutter)}
     .detail-visual{display:flex;flex-direction:column;gap:14px;min-width:0}
     .detail-visual .track{height:auto;aspect-ratio:320/190}
+    .detail-visual .track[hidden],.product-stage[hidden]{display:none}
+    .product-stage{position:relative;display:grid;place-items:center;padding:4% 2% 6%;background:radial-gradient(ellipse 62% 30% at 50% 82%,rgba(245,241,233,.13),transparent 70%),radial-gradient(ellipse 70% 60% at 50% 45%,rgba(245,241,233,.05),transparent 70%)}
+    .product-photo{width:100%;max-width:620px;height:auto;filter:drop-shadow(0 28px 22px rgba(0,0,0,.55));animation:photo-in .7s var(--ease-out) both}
+    @keyframes photo-in{from{opacity:0;transform:translateY(14px) scale(.98)}}
     .detail-round{font-size:.8rem;color:var(--muted)}
     .detail-info{max-width:460px}
     .detail-country:focus{outline:none}
@@ -212,7 +216,7 @@
     @media (prefers-reduced-motion:reduce){
       .gallery,.circuit-card,.progress-fill,.btn,.card-label{transition-duration:.01s}
       .circuit-card.active .track path,.detail .track path{animation:none;stroke-dasharray:none}
-      .cart[open],.cart-count.bump{animation:none}
+      .cart[open],.cart-count.bump,.product-photo{animation:none}
       .vapour-overlay{transition:opacity .35s ease}
     }
   </style>
@@ -267,6 +271,7 @@
         <div class="detail-visual">
           <span class="detail-round num" id="detail-round"></span>
           <svg class="track" id="detail-track" viewBox="0 0 320 190" aria-hidden="true"><path d=""></path></svg>
+          <div class="product-stage" id="product-stage" hidden><img class="product-photo" id="detail-photo" alt="" width="985" height="840" decoding="async"></div>
         </div>
         <div class="detail-info">
           <h2 class="detail-country" id="detail-country" tabindex="-1"></h2>
@@ -389,7 +394,7 @@
       { country:"Belgio", venue:"Circuito di Spa-Francorchamps", w:72, h:44, finish:"Verde Ardenne" },
       { country:"Ungheria", venue:"Hungaroring (Mogyoród)", w:61, h:38, finish:"Opaco ungherese" },
       { country:"Paesi Bassi", venue:"Circuito di Zandvoort", w:58, h:37, finish:"Dune di Zandvoort" },
-      { country:"Italia", venue:"Autodromo Nazionale di Monza", w:69, h:43, finish:"Tempio della velocità" },
+      { country:"Italia", venue:"Autodromo Nazionale di Monza", w:69, h:43, finish:"Tempio della velocità", photo:"circuiti/monza.webp" },
       { country:"Madrid", venue:"Circuito cittadino di Madrid (IFEMA, Spagna)", w:64, h:40, finish:"Urbano madrileno" },
       { country:"Azerbaigian", venue:"Circuito cittadino di Baku", w:71, h:44, finish:"Ciottolato di Baku" },
       { country:"Austin", venue:"Circuito delle Americhe (Texas, USA)", w:66, h:41, finish:"Texano satinato" },
@@ -602,14 +607,27 @@
       }
 
       function openDetail() {
-        const path = $("detail-track").querySelector("path");
+        const c = CIRCUITS[activeIndex];
+        const track = $("detail-track");
+        const path = track.querySelector("path");
+        const stage = $("product-stage");
+        const photo = $("detail-photo");
         path.setAttribute("pathLength", "1");
-        path.setAttribute("d", CIRCUITS[activeIndex].path);
+        path.setAttribute("d", c.path);
+        if (c.photo) {
+          photo.src = c.photo;
+          photo.alt = "Modellino in scala del " + c.venue + " su base in fibra di carbonio";
+        } else {
+          photo.removeAttribute("src");
+        }
+        track.toggleAttribute("hidden", !!c.photo);
+        stage.hidden = !c.photo;
         $("added-message").hidden = true;
         renderDetail();
         browse.hidden = true;
         detail.hidden = false;
-        path.style.animation = "none"; void path.getBoundingClientRect(); path.style.animation = "";
+        const animated = c.photo ? photo : path;
+        animated.style.animation = "none"; void animated.getBoundingClientRect(); animated.style.animation = "";
         window.scrollTo({ top: 0 });
         $("detail-country").focus({ preventScroll: true });
       }

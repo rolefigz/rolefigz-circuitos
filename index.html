@@ -588,6 +588,17 @@
           el.classList.toggle("near", Math.abs(i - activeIndex) === 1);
           el.setAttribute("aria-current", i === activeIndex ? "true" : "false");
         });
+        [0, 1, -1].forEach(step => preloadPhoto(CIRCUITS[(activeIndex + step + CIRCUITS.length) % CIRCUITS.length]));
+      }
+
+      // Warm the cache for the circuits the visitor is looking at, so their detail opens instantly.
+      const preloaded = new Map();
+      function preloadPhoto(c) {
+        if (!c.photo || preloaded.has(c.photo)) return;
+        const img = new Image();
+        img.decoding = "async";
+        img.src = c.photo;
+        preloaded.set(c.photo, img);
       }
 
       function move(step) {
@@ -620,9 +631,21 @@
         const photo = $("detail-photo");
         path.setAttribute("pathLength", "1");
         path.setAttribute("d", c.path);
+        const restart = el => { el.style.animation = "none"; void el.getBoundingClientRect(); el.style.animation = ""; };
+        photo.onload = null;
         if (c.photo) {
+          // Hide until the new file is ready so the previous circuit's photo never flashes.
+          photo.style.visibility = "hidden";
           photo.src = c.photo;
           photo.alt = "Modellino in scala del " + c.venue + " su base in fibra di carbonio";
+          const reveal = () => {
+            if (photo.getAttribute("src") !== c.photo) return;
+            photo.width = photo.naturalWidth;
+            photo.height = photo.naturalHeight;
+            photo.style.visibility = "";
+            restart(photo);
+          };
+          if (photo.complete && photo.naturalWidth) reveal(); else photo.onload = reveal;
         } else {
           photo.removeAttribute("src");
         }
@@ -632,8 +655,7 @@
         renderDetail();
         browse.hidden = true;
         detail.hidden = false;
-        const animated = c.photo ? photo : path;
-        animated.style.animation = "none"; void animated.getBoundingClientRect(); animated.style.animation = "";
+        if (!c.photo) restart(path);
         window.scrollTo({ top: 0 });
         $("detail-country").focus({ preventScroll: true });
       }

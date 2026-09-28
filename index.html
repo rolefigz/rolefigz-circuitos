@@ -55,8 +55,76 @@
     .cart-count.bump{animation:bump .5s var(--ease-out)}
     @keyframes bump{0%{transform:scale(1)}35%{transform:scale(1.35)}100%{transform:scale(1)}}
 
+    /* Home: collection menu */
+    .home[hidden],.request[hidden]{display:none}
+    .home{padding:clamp(28px,5vh,56px) var(--gutter) clamp(36px,7vh,72px)}
+    .home-head{max-width:1240px;margin:0 auto clamp(20px,3.5vh,34px)}
+    .home-title{margin:0;font-size:clamp(2.1rem,4.6vw,4rem);font-weight:800;line-height:.92;letter-spacing:-.04em;text-transform:uppercase;text-wrap:balance}
+    .home-title:focus{outline:none}
+    .home-sub{margin:12px 0 0;max-width:52ch;color:var(--muted);font-size:clamp(1rem,1.3vw,1.125rem);line-height:1.5}
+    .categories{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:clamp(180px,19vw,260px);gap:clamp(10px,1.2vw,16px)}
+    .cat{position:relative;display:block;overflow:hidden;isolation:isolate;color:var(--warm);text-decoration:none;background:var(--panel);border:1px solid var(--line);transition:border-color .3s ease}
+    .cat--hero{grid-column:span 2;grid-row:span 2}
+    .cat--wide{grid-column:span 2}
+    .cat-media{position:absolute;inset:0;z-index:-2;transition:transform .7s var(--ease-out)}
+    .cat-media img{width:100%;height:100%;object-fit:cover}
+    .cat-media--stage{display:grid;place-items:center;padding:6% 8% 22%;background:radial-gradient(ellipse 60% 26% at 50% 74%,rgba(245,241,233,.12),transparent 70%),radial-gradient(ellipse 80% 70% at 50% 40%,rgba(238,43,50,.08),transparent 70%)}
+    .cat-media--stage img{width:auto;height:100%;max-width:100%;object-fit:contain;filter:drop-shadow(0 22px 18px rgba(0,0,0,.55))}
+    .cat-media--art{display:grid;place-items:center;padding:8% 10% 30%;background:radial-gradient(ellipse 70% 60% at 50% 38%,rgba(238,43,50,.10),transparent 72%)}
+    .cat-media--art svg{width:100%;height:100%;overflow:visible}
+    .cat-media--art .art-track{fill:none;stroke:#ff2d36;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 6px rgba(238,43,50,.5))}
+    .cat-media--art .art-dash{fill:none;stroke:var(--warm);stroke-width:3;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:2 9;opacity:.85}
+    .cat-media--art .art-street{fill:none;stroke:rgba(245,241,233,.14);stroke-width:1}
+    .cat-media--art .art-coaster{fill:#15171b;stroke:#3a3e45;stroke-width:1.5}
+    .cat-media--art .art-coaster-rim{fill:none;stroke:#b8141c;stroke-width:2}
+    .cat-media--art .art-plus{fill:var(--red-solid)}
+    .cat::after{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(to top,rgba(7,8,9,.94) 0%,rgba(7,8,9,.55) 30%,rgba(7,8,9,0) 58%)}
+    .cat::before{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--red);transform:scaleX(0);transform-origin:left;transition:transform .45s var(--ease-out);z-index:1}
+    .cat-label{position:absolute;left:clamp(14px,1.6vw,22px);right:clamp(14px,1.6vw,22px);bottom:clamp(14px,1.6vw,20px);display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+    .cat-title{display:block;font-size:clamp(1.1rem,1.7vw,1.5rem);font-weight:800;line-height:1;letter-spacing:-.02em;text-transform:uppercase}
+    .cat--hero .cat-title{font-size:clamp(1.9rem,3.4vw,3rem);letter-spacing:-.035em}
+    .cat-meta{display:block;margin-top:7px;font-size:.875rem;color:var(--muted)}
+    .cat-go{flex:none;display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--line-strong);background:rgba(7,8,9,.5);transition:background .25s,border-color .25s,transform .25s var(--ease-out)}
+    .cat-go svg{width:18px;height:18px}
+    .cat:hover{border-color:var(--line-strong)}
+    .cat:hover .cat-media{transform:scale(1.045)}
+    .cat:hover::before,.cat:focus-visible::before{transform:scaleX(1)}
+    .cat:hover .cat-go{background:var(--red-solid);border-color:var(--red-solid);transform:translateX(3px)}
+    .cat:focus-visible{outline:2px solid var(--warm);outline-offset:3px}
+    .crumb{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:var(--muted);font-size:.9rem;font-weight:600;text-decoration:none;transition:color .2s}
+    .crumb:hover{color:var(--warm)}
+    .crumb svg{width:16px;height:16px}
+    .crumb-browse{justify-self:start;margin:-8px var(--gutter) 0}
+
+    /* Request view (collections without a catalog yet) */
+    .request{padding:clamp(16px,3vh,32px) var(--gutter) clamp(40px,7vh,72px)}
+    .request-inner{max-width:620px;margin:0 auto}
+    .request-art{height:clamp(120px,20vh,190px);margin:8px 0 22px}
+    .request-art .cat-media--art{position:static;display:block;width:100%;height:100%;padding:0;background:none}
+    .request-art svg{display:block;width:100%;height:100%}
+    .request-title{margin:0;font-size:clamp(2rem,4.4vw,3.4rem);font-weight:800;line-height:.95;letter-spacing:-.04em;text-transform:uppercase}
+    .request-title:focus,.request-done h2:focus{outline:none}
+    .request-intro{margin:14px 0 26px;color:var(--muted);font-size:1.05rem;line-height:1.55;max-width:56ch}
+    .request-form .btn{width:100%;margin-top:6px}
+    .request-form textarea{min-height:130px}
+    .request-done{display:flex;flex-direction:column;align-items:flex-start;gap:12px;padding:26px 0}
+    .request-done[hidden]{display:none}
+    .request-done>svg{width:40px;height:40px;color:var(--red)}
+    .request-done h2{margin:0;font-size:1.6rem;font-weight:800}
+    .request-done p{margin:0 0 8px;color:var(--muted);line-height:1.55}
+
+    @media (max-width:900px){
+      .categories{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:clamp(170px,34vw,240px)}
+      .cat--wide{grid-column:span 1}
+    }
+    @media (max-width:640px){
+      .categories{grid-auto-rows:clamp(150px,44vw,200px)}
+      .cat-go{width:34px;height:34px}
+      .cat-meta{font-size:.8rem}
+    }
+
     /* Browse view */
-    .browse{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;align-content:start;gap:clamp(8px,2vh,20px);padding:clamp(20px,4vh,40px) 0 clamp(16px,3vh,28px);min-width:0}
+    .browse{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) auto;align-content:start;gap:clamp(8px,2vh,20px);padding:clamp(12px,2.5vh,28px) 0 clamp(16px,3vh,28px);min-width:0}
     .browse[hidden],.detail[hidden]{display:none}
     .intro{padding:0 var(--gutter);text-align:center}
     .circuit-country{margin:0;font-size:clamp(2.2rem,5.4vw,4.6rem);font-weight:800;line-height:.95;letter-spacing:-.04em;text-transform:uppercase;text-wrap:balance}
@@ -218,6 +286,7 @@
       .gallery,.circuit-card,.progress-fill,.btn,.card-label{transition-duration:.01s}
       .circuit-card.active .track path,.detail .track path{animation:none;stroke-dasharray:none}
       .cart[open],.cart-count.bump,.product-photo{animation:none}
+      .cat-media,.cat::before,.cat-go{transition:none}
       .vapour-overlay{transition:opacity .35s ease}
     }
   </style>
@@ -230,7 +299,7 @@
 
   <div class="page">
     <header class="topbar">
-      <a class="brand" href="./" aria-label="ROLE FIGZ, home">
+      <a class="brand" href="#" aria-label="ROLE FIGZ, tutte le collezioni">
         <img src="rolefigz-mark.png" width="240" height="196" alt="ROLE FIGZ">
         <span class="brand-collection"><strong>Circuiti in Scala</strong><span>Stagione 2026 · 23 circuiti</span></span>
       </a>
@@ -243,7 +312,51 @@
     </header>
 
     <main>
-      <section class="browse" id="browse" aria-labelledby="active-country">
+      <section class="home" id="home" aria-labelledby="home-title">
+        <div class="home-head">
+          <h1 class="home-title" id="home-title" tabindex="-1">Scegli la tua collezione</h1>
+          <p class="home-sub">Modellini e oggetti da collezione stampati in 3D, per chi vive di motorsport.</p>
+        </div>
+        <nav class="categories" id="categories" aria-label="Collezioni"></nav>
+      </section>
+
+      <section class="request" id="request" aria-labelledby="request-title" hidden>
+        <div class="request-inner">
+          <a class="crumb" href="#"><i data-lucide="arrow-left" aria-hidden="true"></i> Tutte le collezioni</a>
+          <div class="request-art" id="request-art" aria-hidden="true"></div>
+          <h1 class="request-title" id="request-title" tabindex="-1"></h1>
+          <p class="request-intro" id="request-intro"></p>
+          <form class="request-form" id="request-form" novalidate>
+            <div class="field">
+              <label for="r-name">Nome e cognome</label>
+              <input id="r-name" name="nome" autocomplete="name" required maxlength="120">
+              <p class="field-error" id="r-name-error" hidden></p>
+            </div>
+            <div class="field">
+              <label for="r-email">Email</label>
+              <input id="r-email" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="160">
+              <p class="field-error" id="r-email-error" hidden></p>
+            </div>
+            <div class="field">
+              <label for="r-message" id="r-message-label">Cosa ti interessa?</label>
+              <textarea id="r-message" name="messaggio" rows="5" required maxlength="2000"></textarea>
+              <p class="field-error" id="r-message-error" hidden></p>
+            </div>
+            <input class="hp" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <p class="form-error" id="request-error" role="alert" hidden></p>
+            <button class="btn btn-primary" type="submit" id="request-submit">Invia richiesta</button>
+          </form>
+          <div class="request-done" id="request-done" hidden>
+            <i data-lucide="circle-check" aria-hidden="true"></i>
+            <h2 tabindex="-1" id="request-done-title">Richiesta inviata</h2>
+            <p id="request-done-text"></p>
+            <a class="btn btn-secondary" href="#">Torna alle collezioni</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="browse" id="browse" aria-labelledby="active-country" hidden>
+        <a class="crumb crumb-browse" href="#"><i data-lucide="arrow-left" aria-hidden="true"></i> Tutte le collezioni</a>
         <div class="intro">
           <h1 class="circuit-country" id="active-country"></h1>
           <p class="circuit-venue" id="active-venue"></p>
@@ -413,12 +526,14 @@
     CIRCUITS.forEach(c => { if (PHOTOS.includes(c.slug)) c.photo = "circuiti/" + c.slug + ".webp"; });
 
     const SIZES = [
-      { id:"S", label:"Piccolo", scale:.6, price:290 },
-      { id:"M", label:"Medio", scale:1, price:425 },
-      { id:"L", label:"Grande", scale:1.4, price:590 },
+      { id:"S", label:"Piccolo", scale:.6, price:17.99 },
+      { id:"M", label:"Medio", scale:1, price:24.99 },
+      { id:"L", label:"Grande", scale:1.4, price:32.99 },
     ];
 
-    const euro = new Intl.NumberFormat("it-IT", { style:"currency", currency:"EUR", maximumFractionDigits:0 });
+    const euroFmt = new Intl.NumberFormat("it-IT", { style:"currency", currency:"EUR", minimumFractionDigits:2, maximumFractionDigits:2 });
+    // Round to cents so sums like 3 × 24.99 never show floating-point noise.
+    const euro = { format: n => euroFmt.format(Math.round(n * 100) / 100) };
     const pad = n => String(n).padStart(2, "0");
     const dims = (c, s) => Math.round(c.w * s.scale) + " × " + Math.round(c.h * s.scale) + " cm";
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -551,6 +666,139 @@
       const browse = $("browse");
       const detail = $("detail");
       const cartDialog = $("cart");
+      const home = $("home");
+      const requestView = $("request");
+
+      // ---------- Collections menu ----------
+      const trackOf = slug => CIRCUITS[SLUGS.indexOf(slug)].path;
+      const ART = {
+        track: slug => '<svg viewBox="0 0 320 190"><path class="art-track" d="' + trackOf(slug) + '"/></svg>',
+        dash: slug => '<svg viewBox="0 0 320 190"><path class="art-dash" d="' + trackOf(slug) + '"/>' +
+          '<circle class="art-plus" cx="296" cy="24" r="16"/><path d="M296 16v16M288 24h16" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>',
+        map: slug => {
+          let streets = "";
+          for (let y = -120; y <= 320; y += 13) streets += '<path class="art-street" d="M-120 ' + y + 'H440"/>';
+          for (let x = -120; x <= 440; x += 21) streets += '<path class="art-street" d="M' + x + ' -120V320"/>';
+          return '<svg viewBox="0 0 320 190"><g transform="rotate(-17 160 95)">' + streets + '</g><path class="art-track" d="' + trackOf(slug) + '"/></svg>';
+        },
+        coaster: slug => {
+          const one = (x, y, r) => '<g transform="translate(' + x + ' ' + y + ') rotate(' + r + ' 70 55)"><rect class="art-coaster" width="140" height="110" rx="14"/>' +
+            '<rect class="art-coaster-rim" x="7" y="7" width="126" height="96" rx="9"/>' +
+            '<path class="art-track" vector-effect="non-scaling-stroke" style="stroke-width:2.5" transform="translate(18 18) scale(.33)" d="' + trackOf(slug) + '"/></g>';
+          return '<svg viewBox="0 0 320 190">' + one(38, 44, -9) + one(150, 30, 7) + '</svg>';
+        },
+      };
+
+      const CATEGORIES = [
+        { id: "circuiti-f1", title: "Circuiti F1", meta: "23 circuiti · Stagione 2026", size: "hero", photo: "circuiti/monza.webp" },
+        { id: "gt", title: "GT", meta: "Collezione GT", art: ["track", "silverstone"],
+          intro: "Il catalogo GT è in preparazione. Raccontaci cosa cerchi e ti rispondiamo con prezzi e tempi di realizzazione." },
+        { id: "world-challenge", title: "World Challenge", meta: "Circuiti del GT World Challenge", art: ["track", "spa"],
+          intro: "I circuiti del GT World Challenge arrivano presto. Dicci quale ti interessa e ti rispondiamo con prezzo e tempi." },
+        { id: "circuiti-italiani", title: "Circuiti italiani", meta: "Mugello, Imola, Misano e altri", art: ["track", "monza"],
+          intro: "Mugello, Imola, Misano e gli altri tracciati italiani sono in preparazione. Dicci quale vuoi e ti rispondiamo con prezzo e tempi." },
+        { id: "su-richiesta", title: "Su richiesta", meta: "Il tuo circuito, su misura", art: ["dash", "austin"], question: "Descrivi la tua idea",
+          intro: "Qualsiasi circuito, anche con un testo personalizzato sulla base. Descrivici la tua idea e ti inviamo un preventivo." },
+        { id: "gadget", title: "Gadget", meta: "Sottobicchieri, portapenne e altro", size: "wide", art: ["coaster", "suzuka"],
+          intro: "Sottobicchieri, portapenne e altri oggetti a tema motorsport. Il catalogo è in preparazione: dicci cosa ti interessa." },
+        { id: "mappe", title: "Mappe", meta: "Mappe dei circuiti in rilievo", size: "wide", art: ["map", "interlagos"],
+          intro: "Mappe in rilievo dei circuiti, con le strade e il territorio intorno. Il catalogo è in preparazione: dicci quale circuito vuoi." },
+      ];
+      const categoryById = id => CATEGORIES.find(c => c.id === id);
+      const mediaOf = cat => cat.photo
+        ? '<div class="cat-media ' + (cat.size === "hero" ? "cat-media--stage" : "") + '"><img src="' + cat.photo + '" alt="' + (cat.alt || "") + '" decoding="async"></div>'
+        : '<div class="cat-media cat-media--art">' + ART[cat.art[0]](cat.art[1]) + '</div>';
+
+      $("categories").innerHTML = CATEGORIES.map(cat =>
+        '<a class="cat' + (cat.size ? " cat--" + cat.size : "") + '" href="#' + cat.id + '">' +
+          mediaOf(cat) +
+          '<span class="cat-label"><span><span class="cat-title">' + cat.title + '</span><span class="cat-meta">' + cat.meta + '</span></span>' +
+          '<span class="cat-go" aria-hidden="true"><i data-lucide="arrow-right"></i></span></span>' +
+        '</a>'
+      ).join("");
+
+      // ---------- Request form for collections without a catalog ----------
+      let requestCategory = null;
+      const REQUEST_FIELDS = [
+        { id: "r-name", msg: "Inserisci il tuo nome." },
+        { id: "r-email", msg: "Inserisci un'email valida, ad esempio nome@email.it." },
+        { id: "r-message", msg: "Scrivi due righe su cosa ti interessa." },
+      ];
+      function validateRequestField(f) {
+        const input = $(f.id), err = $(f.id + "-error");
+        const v = input.value.trim();
+        const ok = v !== "" && (input.type !== "email" || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+        input.setAttribute("aria-invalid", ok ? "false" : "true");
+        if (ok) { input.removeAttribute("aria-describedby"); err.hidden = true; }
+        else { input.setAttribute("aria-describedby", f.id + "-error"); err.textContent = f.msg; err.hidden = false; }
+        return ok;
+      }
+      REQUEST_FIELDS.forEach(f => {
+        $(f.id).addEventListener("blur", () => { if ($(f.id).value.trim() !== "") validateRequestField(f); });
+        $(f.id).addEventListener("input", () => { if ($(f.id).getAttribute("aria-invalid") === "true") validateRequestField(f); });
+      });
+
+      function renderRequest(cat) {
+        requestCategory = cat;
+        $("request-art").innerHTML = '<div class="cat-media cat-media--art">' + ART[cat.art[0]](cat.art[1]) + '</div>';
+        $("request-title").textContent = cat.title;
+        $("request-intro").textContent = cat.intro;
+        $("r-message-label").textContent = cat.question || "Cosa ti interessa?";
+        $("request-form").hidden = false;
+        $("request-done").hidden = true;
+        $("request-error").hidden = true;
+      }
+
+      $("request-form").addEventListener("submit", async e => {
+        e.preventDefault();
+        const results = REQUEST_FIELDS.map(validateRequestField);
+        const firstBad = REQUEST_FIELDS[results.indexOf(false)];
+        if (firstBad) { $(firstBad.id).focus(); return; }
+        const data = Object.fromEntries(Array.from(new FormData($("request-form")).entries()).map(([k, v]) => [k, String(v).trim()]));
+        const submit = $("request-submit");
+        submit.disabled = true;
+        submit.textContent = "Invio in corso…";
+        $("request-error").hidden = true;
+        const controller = new AbortController();
+        const timer = setTimeout(() => controller.abort(), 15000);
+        try {
+          const res = await fetch(ORDER_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify({
+              _subject: "Nueva solicitud · " + requestCategory.title,
+              _template: "table",
+              _replyto: data.email,
+              _honey: data._honey || "",
+              Categoria: requestCategory.title,
+              Nombre: data.nombre,
+              Email: data.email,
+              Mensaje: data.messaggio,
+            }),
+            signal: controller.signal,
+          });
+          const json = await res.json().catch(() => ({}));
+          if (!res.ok || String(json.success) !== "true") throw new Error(json.message || "HTTP " + res.status);
+          $("request-form").reset();
+          $("request-form").hidden = true;
+          $("request-done-text").textContent = "Grazie! Ti risponderemo a " + data.email + " il prima possibile.";
+          $("request-done").hidden = false;
+          $("request-done-title").focus();
+        } catch (err) {
+          const errEl = $("request-error");
+          errEl.textContent = "";
+          const body = "Categoria: " + requestCategory.title + "\n\n" + data.messaggio + "\n\n" + data.nombre + " · " + data.email;
+          const link = document.createElement("a");
+          link.href = "mailto:" + ORDER_EMAIL + "?subject=" + encodeURIComponent("Richiesta " + requestCategory.title) + "&body=" + encodeURIComponent(body);
+          link.textContent = "inviala via email";
+          errEl.append((err.name === "AbortError" ? "L'invio ha impiegato troppo tempo. " : "Non è stato possibile inviare la richiesta. ") + "Riprova oppure ", link, ".");
+          errEl.hidden = false;
+        } finally {
+          clearTimeout(timer);
+          submit.disabled = false;
+          submit.textContent = "Invia richiesta";
+        }
+      });
 
       gallery.innerHTML = CIRCUITS.map((c, i) =>
         '<button class="circuit-card" type="button" data-index="' + i + '" aria-label="Round ' + c.round + ': ' + c.country + ', ' + c.venue + '">' +
@@ -661,17 +909,51 @@
         $("detail-country").focus({ preventScroll: true });
       }
 
-      function closeDetail() {
-        detail.hidden = true;
-        browse.hidden = false;
-        updateGallery(false);
-        cards[activeIndex].focus({ preventScroll: true });
+      // ---------- Routing: #, #circuiti-f1, #circuiti-f1/<circuito>, #<collezione> ----------
+      const goToDetail = () => { location.hash = "#circuiti-f1/" + CIRCUITS[activeIndex].slug; };
+      const goToBrowse = () => { location.hash = "#circuiti-f1"; };
+      let lastView = null;
+
+      function route() {
+        const [section, sub] = decodeURIComponent(location.hash.replace(/^#\/?/, "")).split("/");
+        const prev = lastView;
+        home.hidden = browse.hidden = detail.hidden = requestView.hidden = true;
+
+        if (section === "circuiti-f1") {
+          const idx = sub ? SLUGS.indexOf(sub) : -1;
+          if (idx >= 0) {
+            activeIndex = idx;
+            lastView = "detail";
+            openDetail();
+            return;
+          }
+          browse.hidden = false;
+          lastView = "browse";
+          updateGallery(false);
+          window.scrollTo({ top: 0 });
+          if (prev === "detail") cards[activeIndex].focus({ preventScroll: true });
+          return;
+        }
+
+        const cat = categoryById(section);
+        window.scrollTo({ top: 0 });
+        if (cat) {
+          renderRequest(cat);
+          requestView.hidden = false;
+          lastView = "request";
+          if (prev) $("request-title").focus({ preventScroll: true });
+          return;
+        }
+        home.hidden = false;
+        lastView = "home";
+        if (prev) $("home-title").focus({ preventScroll: true });
       }
+      window.addEventListener("hashchange", route);
 
       cards.forEach((card, i) => {
         card.addEventListener("click", () => {
           if (suppressClick) return;
-          if (i === activeIndex) { openDetail(); return; }
+          if (i === activeIndex) { goToDetail(); return; }
           activeIndex = i;
           updateGallery();
         });
@@ -679,8 +961,8 @@
 
       $("prev-button").addEventListener("click", () => move(-1));
       $("next-button").addEventListener("click", () => move(1));
-      $("open-detail").addEventListener("click", openDetail);
-      $("back-button").addEventListener("click", closeDetail);
+      $("open-detail").addEventListener("click", goToDetail);
+      $("back-button").addEventListener("click", goToBrowse);
       $("size-options").addEventListener("change", e => { sizeId = e.target.value; renderDetail(); });
 
       // Drag: capture only once the pointer has actually travelled, so plain
@@ -726,9 +1008,10 @@
       document.addEventListener("keydown", e => {
         if (cartDialog.open) return;
         if (!detail.hidden) {
-          if (e.key === "Escape") closeDetail();
+          if (e.key === "Escape") goToBrowse();
           return;
         }
+        if (browse.hidden) return;
         if (e.target.closest("input, textarea")) return;
         if (e.key === "ArrowLeft") { e.preventDefault(); move(-1); }
         else if (e.key === "ArrowRight") { e.preventDefault(); move(1); }
@@ -944,7 +1227,7 @@
       window.addEventListener("resize", () => { if (!browse.hidden) updateGallery(false); });
 
       renderCart();
-      updateGallery(false);
+      route();
       if (document.fonts) document.fonts.ready.then(() => { if (!browse.hidden) updateGallery(false); });
     });
   </script>

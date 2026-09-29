@@ -264,6 +264,8 @@
     .footer{padding:14px var(--gutter) 18px;border-top:1px solid var(--line);text-align:center}
     .footer p{margin:0;color:var(--quiet);font-size:.8rem;line-height:1.5}
     .footer a{color:var(--muted);text-underline-offset:2px}
+    .footer .footer-collab{margin:4px 0 10px;color:var(--warm);font-size:1rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
+    .footer-collab span[aria-hidden]{color:var(--red);margin:0 .35em}
 
     @media (max-width:900px){
       .detail{grid-template-columns:1fr;align-items:start;gap:20px}
@@ -305,10 +307,10 @@
 
   <div class="page">
     <header class="topbar">
-      <a class="brand" href="#" aria-label="ROLE FIGZ, tutte le collezioni">
-        <img src="rolefigz-mark.png" width="240" height="196" alt="ROLE FIGZ">
-        <span class="brand-sep" aria-hidden="true"></span>
+      <a class="brand" href="#" aria-label="NRG Sim Racing × ROLE FIGZ, tutte le collezioni">
         <img class="brand-partner" src="nrg-mark.png" width="295" height="120" alt="NRG Sim Racing">
+        <span class="brand-sep" aria-hidden="true"></span>
+        <img src="rolefigz-mark.png" width="240" height="196" alt="ROLE FIGZ">
         <span class="brand-collection"><strong>Circuiti in Scala</strong><span>Stagione 2026</span></span>
       </a>
       <button class="cart-button" id="cart-button" type="button" aria-haspopup="dialog" aria-controls="cart">
@@ -417,6 +419,7 @@
     </main>
 
     <footer class="footer">
+      <p class="footer-collab">NRG <span aria-hidden="true">×</span><span class="sr-only">e</span> ROLE FIGZ</p>
       <p>Modellini da collezione indipendenti, non affiliati alla Formula 1 né ai team ufficiali. Tracciati basati su <a href="https://github.com/julesr0y/f1-circuits-svg" rel="noopener">julesr0y/f1-circuits-svg</a> (CC BY 4.0) e dati © <a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap contributors</a> (ODbL).</p>
     </footer>
   </div>

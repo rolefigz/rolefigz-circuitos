@@ -9,7 +9,6 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700;800&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
-  <link rel="preload" as="image" href="rolefigz-800.png">
   <style>
     :root{
       --ink:#070809;--panel:#101216;--line:#2e3239;--line-strong:#50555d;
@@ -37,6 +36,7 @@
     /* Loader */
     .vapour-overlay{position:fixed;inset:0;z-index:100;display:grid;place-items:center;background:#000;transition:opacity .55s ease,visibility .55s ease}
     .vapour-overlay.is-hidden{opacity:0;visibility:hidden;pointer-events:none}
+    .vapour-overlay[hidden]{display:none}
     .vapour-canvas{width:min(62vw,340px);aspect-ratio:1/1}
 
     /* Shell */
@@ -44,6 +44,8 @@
     .topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px var(--gutter);border-bottom:1px solid var(--line)}
     .brand{display:flex;align-items:center;gap:14px;text-decoration:none;color:inherit}
     .brand img{height:38px;width:auto}
+    .brand .brand-partner{height:34px}
+    .brand-sep{width:1px;height:28px;background:var(--line-strong)}
     .brand-collection{display:flex;flex-direction:column;gap:2px;padding-left:14px;border-left:1px solid var(--line-strong);line-height:1.15}
     .brand-collection strong{font-size:.95rem;font-weight:700;letter-spacing:.01em}
     .brand-collection span{font-size:.75rem;color:var(--muted)}
@@ -269,6 +271,8 @@
     }
     @media (max-width:640px){
       .brand img{height:32px}
+      .brand .brand-partner{height:28px}
+      .brand{gap:10px}
       .brand-collection{display:none}
       .cart-label{display:none}
       .cart-button{padding:0 12px}
@@ -294,8 +298,8 @@
   </style>
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.577.0/dist/umd/lucide.min.js"></script>
 </head>
-<body class="is-loading">
-  <div class="vapour-overlay" id="vapour-overlay" role="status" aria-label="Caricamento ROLE FIGZ">
+<body>
+  <div class="vapour-overlay" id="vapour-overlay" role="status" aria-label="Caricamento ROLE FIGZ" hidden>
     <canvas id="vapour-canvas" class="vapour-canvas" aria-hidden="true"></canvas>
   </div>
 
@@ -303,6 +307,8 @@
     <header class="topbar">
       <a class="brand" href="#" aria-label="ROLE FIGZ, tutte le collezioni">
         <img src="rolefigz-mark.png" width="240" height="196" alt="ROLE FIGZ">
+        <span class="brand-sep" aria-hidden="true"></span>
+        <img class="brand-partner" src="nrg-mark.png" width="295" height="120" alt="NRG Sim Racing">
         <span class="brand-collection"><strong>Circuiti in Scala</strong><span>Stagione 2026</span></span>
       </a>
       <button class="cart-button" id="cart-button" type="button" aria-haspopup="dialog" aria-controls="cart">
@@ -688,13 +694,18 @@
       const overlay = $("vapour-overlay");
       const revealPage = () => document.body.classList.remove("is-loading");
 
+      // Logo loading animation: switched off for now. Set to true to bring it back (it plays once per session).
+      const INTRO_ENABLED = false;
       let seenIntro = false;
-      try { seenIntro = sessionStorage.getItem("rf-intro") === "1"; sessionStorage.setItem("rf-intro", "1"); } catch (e) {}
-      if (seenIntro) {
+      try { seenIntro = sessionStorage.getItem("rf-intro") === "1"; } catch (e) {}
+      if (INTRO_ENABLED && !seenIntro) {
+        try { sessionStorage.setItem("rf-intro", "1"); } catch (e) {}
+        overlay.hidden = false;
+        document.body.classList.add("is-loading");
+        vaporizeLogo(overlay, revealPage);
+      } else {
         overlay.remove();
         revealPage();
-      } else {
-        vaporizeLogo(overlay, revealPage);
       }
 
       const gallery = $("gallery");

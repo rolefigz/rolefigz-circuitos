@@ -25,6 +25,9 @@ SLUGS = [
     "monaco", "barcelona", "spielberg", "silverstone", "spa", "hungaroring",
     "zandvoort", "monza", "madrid", "baku", "austin", "mexico-city", "interlagos",
     "las-vegas", "lusail", "yas-marina",
+    # GT, World Challenge, Circuiti italiani
+    "le-mans", "nordschleife", "daytona", "bathurst", "sebring", "paul-ricard", "brands-hatch",
+    "misano", "magny-cours", "nurburgring", "portimao", "imola", "mugello", "vallelunga",
 ]
 MAX_WIDTH = 1100
 

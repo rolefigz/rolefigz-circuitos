@@ -6,3 +6,6 @@ circuiti/*.jpg
 gemini-kit/
 __pycache__/
 LOGO NRG PNG.png
+stl/
+herramientas/genera_stl.py
+herramientas/Michroma-Regular.ttf

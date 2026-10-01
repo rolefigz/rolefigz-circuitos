@@ -571,16 +571,17 @@
     let CIRCUITS = COLLECTIONS[collectionId].items;
 
     const SIZES = [
-      { id:"S", label:"Piccolo", scale:.6, price:17.99 },
-      { id:"M", label:"Medio", scale:1, price:24.99 },
-      { id:"L", label:"Grande", scale:1.4, price:32.99 },
+      { id:"S", label:"Piccolo", dims:"12 × 5 × 12 cm", price:17.99 },
+      { id:"M", label:"Medio", dims:"17 × 7 × 17 cm", price:24.99 },
+      { id:"L", label:"Grande", dims:"25 × 10 × 24 cm", price:32.99 },
     ];
 
     const euroFmt = new Intl.NumberFormat("it-IT", { style:"currency", currency:"EUR", minimumFractionDigits:2, maximumFractionDigits:2 });
     // Round to cents so sums like 3 × 24.99 never show floating-point noise.
     const euro = { format: n => euroFmt.format(Math.round(n * 100) / 100) };
     const pad = n => String(n).padStart(2, "0");
-    const dims = (c, s) => Math.round(c.w * s.scale) + " × " + Math.round(c.h * s.scale) + " cm";
+    // Medidas reales de la pieza montada (ancho × fondo × alto), iguales para todos los circuitos.
+    const dims = (c, s) => s.dims;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function vaporizeLogo(overlay, onDone) {

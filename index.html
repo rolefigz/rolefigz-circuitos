@@ -571,17 +571,19 @@
     let CIRCUITS = COLLECTIONS[collectionId].items;
 
     const SIZES = [
-      { id:"S", label:"Piccolo", dims:"12 × 5 × 12 cm", price:17.99 },
-      { id:"M", label:"Medio", dims:"17 × 7 × 17 cm", price:24.99 },
-      { id:"L", label:"Grande", dims:"25 × 10 × 24 cm", price:32.99 },
+      { id:"S", label:"Piccolo", w:12, d:5, h:12, price:17.99 },
+      { id:"M", label:"Medio", w:17, d:7, h:17, price:24.99 },
+      { id:"L", label:"Grande", w:25, d:10, h:24, price:32.99 },
     ];
 
     const euroFmt = new Intl.NumberFormat("it-IT", { style:"currency", currency:"EUR", minimumFractionDigits:2, maximumFractionDigits:2 });
     // Round to cents so sums like 3 × 24.99 never show floating-point noise.
     const euro = { format: n => euroFmt.format(Math.round(n * 100) / 100) };
     const pad = n => String(n).padStart(2, "0");
-    // Medidas reales de la pieza montada (ancho × fondo × alto), iguales para todos los circuitos.
-    const dims = (c, s) => s.dims;
+    // Medidas reales de la pieza montada, iguales para todos los circuitos:
+    // dims = ancho × fondo × alto (ficha, carrito, pedido); dimsShort = ancho × alto (botones de tamaño).
+    const dims = (c, s) => s.w + " × " + s.d + " × " + s.h + " cm";
+    const dimsShort = s => s.w + " × " + s.h + " cm";
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     function vaporizeLogo(overlay, onDone) {
@@ -941,7 +943,7 @@
         $("detail-finish").textContent = c.finish;
         cards.forEach((el, i) => el.setAttribute("aria-current", i === activeIndex ? "true" : "false"));
         $("size-options").querySelectorAll(".size-option").forEach((label, i) => {
-          label.querySelector(".size-dims").textContent = dims(c, SIZES[i]);
+          label.querySelector(".size-dims").textContent = dimsShort(SIZES[i]);
         });
       }
 

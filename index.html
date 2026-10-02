@@ -93,6 +93,10 @@
     .cat:hover::before,.cat:focus-visible::before{transform:scaleX(1)}
     .cat:hover .cat-go{background:var(--red-solid);border-color:var(--red-solid);transform:translateX(3px)}
     .cat:focus-visible{outline:2px solid var(--warm);outline-offset:3px}
+    .cat--soon .cat-media{opacity:.35}
+    .cat--soon:hover{border-color:var(--line)}
+    .cat--soon:hover .cat-media{transform:none}
+    .cat--soon::before{display:none}
     .crumb{display:inline-flex;align-items:center;gap:8px;min-height:44px;color:var(--muted);font-size:.9rem;font-weight:600;text-decoration:none;transition:color .2s}
     .crumb:hover{color:var(--warm)}
     .crumb svg{width:16px;height:16px}
@@ -558,7 +562,7 @@
     const COLLECTIONS = {
       "circuiti-f1": { title: "Circuiti F1", calendar: true, heading: "country", slugs: F1_SLUGS },
       "gt": { title: "GT", heading: "short", slugs: ["le-mans", "nordschleife", "daytona", "spa", "bathurst", "sebring", "suzuka"] },
-      "world-challenge": { title: "World Challenge", calendar: true, heading: "short",
+      "world-challenge": { title: "GT World Challenge", calendar: true, heading: "short",
         slugs: ["paul-ricard", "brands-hatch", "monza", "spa", "misano", "magny-cours", "nurburgring", "zandvoort", "barcelona", "portimao"] },
       "circuiti-italiani": { title: "Circuiti italiani", heading: "short", slugs: ["monza", "imola", "mugello", "misano", "vallelunga"] },
     };
@@ -728,6 +732,7 @@
         track: slug => '<svg viewBox="0 0 320 190"><path class="art-track" d="' + trackOf(slug) + '"/></svg>',
         dash: slug => '<svg viewBox="0 0 320 190"><path class="art-dash" d="' + trackOf(slug) + '"/>' +
           '<circle class="art-plus" cx="296" cy="24" r="16"/><path d="M296 16v16M288 24h16" stroke="#fff" stroke-width="3" stroke-linecap="round"/></svg>',
+        soon: slug => '<svg viewBox="0 0 320 190"><path class="art-dash" d="' + trackOf(slug) + '"/></svg>',
         map: slug => {
           let streets = "";
           for (let y = -120; y <= 320; y += 13) streets += '<path class="art-street" d="M-120 ' + y + 'H440"/>';
@@ -744,11 +749,11 @@
 
       const CATEGORIES = [
         { id: "circuiti-f1", title: "Circuiti F1", meta: COLLECTIONS["circuiti-f1"].items.length + " circuiti · Stagione 2026", size: "hero", photo: "circuiti/monza.webp" },
-        { id: "gt", title: "GT", meta: COLLECTIONS.gt.items.length + " circuiti leggendari dell'endurance", art: ["track", "nordschleife"] },
-        { id: "world-challenge", title: "World Challenge", meta: COLLECTIONS["world-challenge"].items.length + " circuiti · Stagione 2026", art: ["track", "paul-ricard"] },
+        { id: "world-challenge", title: "GT World Challenge", meta: COLLECTIONS["world-challenge"].items.length + " circuiti · Stagione 2026", art: ["track", "paul-ricard"] },
         { id: "circuiti-italiani", title: "Circuiti italiani", meta: COLLECTIONS["circuiti-italiani"].items.map(c => c.short).join(", "), art: ["track", "mugello"] },
         { id: "su-richiesta", title: "Su richiesta", meta: "Il tuo circuito, su misura", art: ["dash", "austin"], question: "Descrivi la tua idea",
           intro: "Qualsiasi circuito, anche con un testo personalizzato sulla base. Descrivici la tua idea e ti inviamo un preventivo." },
+        { id: "prossimamente", title: "Prossimamente", meta: "Nuove collezioni in arrivo", art: ["soon", "nordschleife"], soon: true },
         { id: "gadget", title: "Gadget", meta: "Sottobicchieri, portapenne e altro", size: "wide", art: ["coaster", "suzuka"],
           intro: "Sottobicchieri, portapenne e altri oggetti a tema motorsport. Il catalogo è in preparazione: dicci cosa ti interessa." },
         { id: "mappe", title: "Mappe", meta: "Mappe dei circuiti in rilievo", size: "wide", art: ["map", "interlagos"],
@@ -759,13 +764,15 @@
         ? '<div class="cat-media ' + (cat.size === "hero" ? "cat-media--stage" : "") + '"><img src="' + cat.photo + '" alt="' + (cat.alt || "") + '" decoding="async"></div>'
         : '<div class="cat-media cat-media--art">' + ART[cat.art[0]](cat.art[1]) + '</div>';
 
-      $("categories").innerHTML = CATEGORIES.map(cat =>
-        '<a class="cat' + (cat.size ? " cat--" + cat.size : "") + '" href="#' + cat.id + '">' +
+      // Las tarjetas "soon" son solo un aviso: sin enlace ni flecha.
+      $("categories").innerHTML = CATEGORIES.map(cat => {
+        const tag = cat.soon ? "div" : "a";
+        return '<' + tag + ' class="cat' + (cat.size ? " cat--" + cat.size : "") + (cat.soon ? " cat--soon" : "") + '"' + (cat.soon ? "" : ' href="#' + cat.id + '"') + '>' +
           mediaOf(cat) +
           '<span class="cat-label"><span><span class="cat-title">' + cat.title + '</span><span class="cat-meta">' + cat.meta + '</span></span>' +
-          '<span class="cat-go" aria-hidden="true"><i data-lucide="arrow-right"></i></span></span>' +
-        '</a>'
-      ).join("");
+          (cat.soon ? "" : '<span class="cat-go" aria-hidden="true"><i data-lucide="arrow-right"></i></span>') + '</span>' +
+        '</' + tag + '>';
+      }).join("");
 
       // ---------- Request form for collections without a catalog ----------
       let requestCategory = null;
@@ -1015,7 +1022,7 @@
 
         const cat = categoryById(section);
         window.scrollTo({ top: 0 });
-        if (cat) {
+        if (cat && !cat.soon) {
           renderRequest(cat);
           requestView.hidden = false;
           lastView = "request";

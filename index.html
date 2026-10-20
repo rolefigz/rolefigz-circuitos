@@ -74,6 +74,9 @@
     .cat-media--stage img{width:auto;height:100%;max-width:100%;object-fit:contain;filter:drop-shadow(0 22px 18px rgba(0,0,0,.55))}
     .cat-media--stage-sm{padding:7% 12% 0;place-items:start center}
     .cat-media--stage-sm img{height:54%}
+    .cat-media--gadgets{display:grid;grid-template-columns:1.7fr .55fr .55fr 1.3fr;grid-template-rows:100%;align-items:center;gap:3%;padding:20px 6% 96px;background:radial-gradient(ellipse 70% 60% at 50% 40%,rgba(245,241,233,.09),transparent 72%)}
+    .cat-media--gadgets img{width:100%;height:100%;min-width:0;min-height:0;object-fit:contain}
+    .cat-media--gadgets img,.gadget-grid img{filter:drop-shadow(0 0 1px rgba(245,241,233,.4)) drop-shadow(0 14px 14px rgba(0,0,0,.6))}
     .cat-media--art{display:grid;place-items:center;padding:8% 10% 30%;background:radial-gradient(ellipse 70% 60% at 50% 38%,rgba(238,43,50,.10),transparent 72%)}
     .cat-media--art svg{width:100%;height:100%;overflow:visible}
     .cat-media--art .art-track{fill:none;stroke:#ff2d36;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 6px rgba(238,43,50,.5))}
@@ -110,6 +113,11 @@
     .request{padding:clamp(16px,3vh,32px) var(--gutter) clamp(40px,7vh,72px)}
     .request-inner{max-width:620px;margin:0 auto}
     .request-art{height:clamp(120px,20vh,190px);margin:8px 0 22px}
+    .request-art--gallery{height:auto}
+    .gadget-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:0;padding:0;list-style:none}
+    .gadget-grid figure{margin:0;display:flex;flex-direction:column;gap:10px;padding:14px 12px 12px;background:radial-gradient(ellipse 75% 60% at 50% 42%,rgba(245,241,233,.10),transparent 72%),#101114;border:1px solid var(--line-strong)}
+    .gadget-grid img{display:block;width:100%;height:clamp(120px,22vw,170px);object-fit:contain}
+    .gadget-grid figcaption{font-size:.9rem;font-weight:700;color:var(--warm);text-align:center}
     .request-art .cat-media--art{position:static;display:block;width:100%;height:100%;padding:0;background:none}
     .request-art svg{display:block;width:100%;height:100%}
     .request-title{margin:0;font-size:clamp(2rem,4.4vw,3.4rem);font-weight:800;line-height:.95;letter-spacing:-.04em;text-transform:uppercase}
@@ -781,6 +789,14 @@
         },
       };
 
+      const GADGETS = [
+        { slug: "mensola-alettone-gt3rs", name: "Mensola alettone GT3 RS" },
+        { slug: "portachiavi-f1-rosso", name: "Portachiavi F1 rosso" },
+        { slug: "portachiavi-f1-nero", name: "Portachiavi F1 nero" },
+        { slug: "sagoma-spa", name: "Sagoma da parete Spa" },
+      ];
+      const gadgetImg = g => '<img src="gadget/' + g.slug + '.webp" alt="' + g.name + '" decoding="async">';
+
       const CATEGORIES = [
         { id: "circuiti-f1", title: "Circuiti F1", meta: COLLECTIONS["circuiti-f1"].items.length + " circuiti · Stagione 2026", size: "hero", photo: "circuiti/monza.webp" },
         { id: "world-challenge", title: "GT World Challenge", meta: COLLECTIONS["world-challenge"].items.length + " circuiti · Stagione 2026", art: ["track", "paul-ricard"], photo: "circuiti/paul-ricard.webp" },
@@ -788,13 +804,15 @@
         { id: "su-richiesta", title: "Su richiesta", meta: "Il tuo circuito, su misura", art: ["dash", "austin"], question: "Descrivi la tua idea",
           intro: "Qualsiasi circuito, anche con un testo personalizzato sulla base. Descrivici la tua idea e ti inviamo un preventivo." },
         { id: "prossimamente", title: "Prossimamente", meta: "Nuove collezioni in arrivo", art: ["soon", "nordschleife"], soon: true },
-        { id: "gadget", title: "Gadget", meta: "Sottobicchieri, portapenne e altro", size: "wide", art: ["coaster", "suzuka"],
-          intro: "Sottobicchieri, portapenne e altri oggetti a tema motorsport. Il catalogo è in preparazione: dicci cosa ti interessa." },
+        { id: "gadget", title: "Gadget", meta: "Portachiavi, mensole e decorazioni", size: "wide", art: ["coaster", "suzuka"], gadgets: GADGETS, question: "Quale gadget ti interessa?",
+          intro: "Portachiavi, mensole e decorazioni da parete a tema motorsport, stampati in 3D. Dicci quale ti interessa e ti inviamo prezzo e disponibilità." },
         { id: "mappe", title: "Mappe", meta: "Mappe dei circuiti in rilievo", size: "wide", art: ["map", "interlagos"],
           intro: "Mappe in rilievo dei circuiti, con le strade e il territorio intorno. Il catalogo è in preparazione: dicci quale circuito vuoi." },
       ];
       const categoryById = id => CATEGORIES.find(c => c.id === id);
-      const mediaOf = cat => cat.photo
+      const mediaOf = cat => cat.gadgets
+        ? '<div class="cat-media cat-media--gadgets">' + cat.gadgets.map(g => gadgetImg(g).replace(/alt="[^"]*"/, 'alt=""')).join("") + '</div>'
+        : cat.photo
         ? '<div class="cat-media cat-media--stage' + (cat.size === "hero" ? "" : " cat-media--stage-sm") + '"><img src="' + cat.photo + '" alt="' + (cat.alt || "") + '" decoding="async"></div>'
         : '<div class="cat-media cat-media--art">' + ART[cat.art[0]](cat.art[1]) + '</div>';
 
@@ -831,7 +849,15 @@
 
       function renderRequest(cat) {
         requestCategory = cat;
-        $("request-art").innerHTML = '<div class="cat-media cat-media--art">' + ART[cat.art[0]](cat.art[1]) + '</div>';
+        const art = $("request-art");
+        art.classList.toggle("request-art--gallery", !!cat.gadgets);
+        if (cat.gadgets) {
+          art.removeAttribute("aria-hidden");
+          art.innerHTML = '<ul class="gadget-grid">' + cat.gadgets.map(g => '<li><figure>' + gadgetImg(g) + '<figcaption>' + g.name + '</figcaption></figure></li>').join("") + '</ul>';
+        } else {
+          art.setAttribute("aria-hidden", "true");
+          art.innerHTML = '<div class="cat-media cat-media--art">' + ART[cat.art[0]](cat.art[1]) + '</div>';
+        }
         $("request-title").textContent = cat.title;
         $("request-intro").textContent = cat.intro;
         $("r-message-label").textContent = cat.question || "Cosa ti interessa?";

@@ -76,7 +76,7 @@
     .cat-media--stage-sm img{height:54%}
     .cat-media--gadgets{display:grid;grid-template-columns:1.7fr .55fr .55fr 1.3fr;grid-template-rows:100%;align-items:center;gap:3%;padding:20px 6% 96px;background:radial-gradient(ellipse 70% 60% at 50% 40%,rgba(245,241,233,.09),transparent 72%)}
     .cat-media--gadgets img{width:100%;height:100%;min-width:0;min-height:0;object-fit:contain}
-    .cat-media--gadgets img,.gadget-grid img{filter:drop-shadow(0 0 1px rgba(245,241,233,.4)) drop-shadow(0 14px 14px rgba(0,0,0,.6))}
+    .cat-media--gadgets img,.pcard-media img{filter:drop-shadow(0 0 1px rgba(245,241,233,.4)) drop-shadow(0 14px 14px rgba(0,0,0,.6))}
     .cat-media--art{display:grid;place-items:center;padding:8% 10% 30%;background:radial-gradient(ellipse 70% 60% at 50% 38%,rgba(238,43,50,.10),transparent 72%)}
     .cat-media--art svg{width:100%;height:100%;overflow:visible}
     .cat-media--art .art-track{fill:none;stroke:#ff2d36;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 2px 6px rgba(238,43,50,.5))}
@@ -113,11 +113,25 @@
     .request{padding:clamp(16px,3vh,32px) var(--gutter) clamp(40px,7vh,72px)}
     .request-inner{max-width:620px;margin:0 auto}
     .request-art{height:clamp(120px,20vh,190px);margin:8px 0 22px}
-    .request-art--gallery{height:auto}
-    .gadget-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin:0;padding:0;list-style:none}
-    .gadget-grid figure{margin:0;display:flex;flex-direction:column;gap:10px;padding:14px 12px 12px;background:radial-gradient(ellipse 75% 60% at 50% 42%,rgba(245,241,233,.10),transparent 72%),#101114;border:1px solid var(--line-strong)}
-    .gadget-grid img{display:block;width:100%;height:clamp(120px,22vw,170px);object-fit:contain}
-    .gadget-grid figcaption{font-size:.9rem;font-weight:700;color:var(--warm);text-align:center}
+    .request-art--gallery{height:auto;position:relative;left:50%;width:min(1040px,calc(100vw - 2 * var(--gutter)));transform:translateX(-50%);margin:30px 0 44px}
+    .pcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:clamp(14px,2vw,22px);margin:0;padding:0;list-style:none}
+    .pcard{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);transition:border-color .25s,transform .35s var(--ease-out)}
+    .pcard:hover{border-color:var(--line-strong);transform:translateY(-3px)}
+    .pcard-media{position:relative;aspect-ratio:4/3;background:radial-gradient(ellipse 62% 55% at 50% 46%,rgba(245,241,233,.10),transparent 72%);overflow:hidden}
+    .pcard-media img{position:absolute;inset:9% 12%;width:76%;height:82%;object-fit:contain;transition:transform .5s var(--ease-out)}
+    .pcard:hover .pcard-media img{transform:scale(1.04)}
+    .pcard-body{display:flex;flex-direction:column;gap:6px;flex:1;padding:16px 18px 18px;border-top:1px solid var(--line)}
+    .pcard-tag{font-family:"Space Mono",ui-monospace,monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--quiet)}
+    .pcard-name{margin:0;font-size:1.08rem;font-weight:700;line-height:1.25;color:var(--warm)}
+    .pcard-desc{margin:0;font-size:.9rem;line-height:1.5;color:var(--muted)}
+    .pcard-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:14px}
+    .pcard-price{font-size:.85rem;color:var(--quiet)}
+    .pcard-cta{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;background:transparent;border:1px solid var(--line-strong);color:var(--warm);font:inherit;font-size:.88rem;font-weight:700;cursor:pointer;transition:background .2s,border-color .2s}
+    .pcards .pcard-cta svg{display:block;flex:none;width:16px;height:16px;transition:transform .25s var(--ease-out)}
+    .pcard-cta:hover{background:var(--red-solid);border-color:var(--red-solid)}
+    .pcard-cta:hover svg{transform:translateX(3px)}
+    .pcard-cta:focus-visible{outline:2px solid var(--warm);outline-offset:2px}
+    @media (prefers-reduced-motion:reduce){.pcard,.pcard-media img,.pcard-cta svg{transition:none}.pcard:hover{transform:none}.pcard:hover .pcard-media img{transform:none}}
     .request-art .cat-media--art{position:static;display:block;width:100%;height:100%;padding:0;background:none}
     .request-art svg{display:block;width:100%;height:100%}
     .request-title{margin:0;font-size:clamp(2rem,4.4vw,3.4rem);font-weight:800;line-height:.95;letter-spacing:-.04em;text-transform:uppercase}
@@ -790,11 +804,16 @@
       };
 
       const GADGETS = [
-        { slug: "mensola-alettone-gt3rs", name: "Mensola alettone GT3 RS", card: true },
-        { slug: "portachiavi-f1-rosso", name: "Portachiavi F1 rosso", card: true },
-        { slug: "portachiavi-f1-nero", name: "Portachiavi F1 nero", card: true },
-        { slug: "sagoma-spa", name: "Sagoma da parete Spa", card: true },
-        { slug: "sottobicchieri-f1", name: "Sottobicchieri F1 con supporto" },
+        { slug: "mensola-alettone-gt3rs", name: "Mensola alettone GT3 RS", card: true, tag: "Mensola",
+          desc: "Mensola da parete a forma di alettone, per modellini, cuffie o trofei." },
+        { slug: "portachiavi-f1-rosso", name: "Portachiavi F1 rosso", card: true, tag: "Portachiavi",
+          desc: "Cinturino rosso con logo F1 e piastrina in fibra di carbonio." },
+        { slug: "portachiavi-f1-nero", name: "Portachiavi F1 nero", card: true, tag: "Portachiavi",
+          desc: "Cinturino nero con logo F1 rosso e piastrina nera." },
+        { slug: "sagoma-spa", name: "Sagoma da parete Spa", card: true, tag: "Decorazione",
+          desc: "Il tracciato di Spa-Francorchamps da appendere, con targhetta." },
+        { slug: "sottobicchieri-f1", name: "Sottobicchieri F1 con supporto", tag: "Sottobicchieri",
+          desc: "Set di sottobicchieri con i tracciati e il supporto coordinato." },
       ];
       const gadgetImg = g => '<img src="gadget/' + g.slug + '.webp" alt="' + g.name + '" decoding="async">';
 
@@ -853,10 +872,19 @@
         const art = $("request-art");
         art.classList.toggle("request-art--gallery", !!cat.gadgets);
         if (cat.gadgets) {
+          // Con catálogo, los productos van después de la intro y antes del formulario.
           art.removeAttribute("aria-hidden");
-          art.innerHTML = '<ul class="gadget-grid">' + cat.gadgets.map(g => '<li><figure>' + gadgetImg(g) + '<figcaption>' + g.name + '</figcaption></figure></li>').join("") + '</ul>';
+          $("request-intro").after(art);
+          art.innerHTML = '<ul class="pcards">' + cat.gadgets.map(g =>
+            '<li class="pcard"><div class="pcard-media">' + gadgetImg(g) + '</div><div class="pcard-body">' +
+            '<span class="pcard-tag">' + g.tag + '</span><h2 class="pcard-name">' + g.name + '</h2><p class="pcard-desc">' + g.desc + '</p>' +
+            '<div class="pcard-foot"><span class="pcard-price">Prezzo su richiesta</span>' +
+            '<button type="button" class="pcard-cta" data-gadget="' + g.name + '">Richiedi' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>' +
+            '</div></div></li>').join("") + '</ul>';
         } else {
           art.setAttribute("aria-hidden", "true");
+          $("request-title").before(art);
           art.innerHTML = '<div class="cat-media cat-media--art">' + ART[cat.art[0]](cat.art[1]) + '</div>';
         }
         $("request-title").textContent = cat.title;
@@ -866,6 +894,16 @@
         $("request-done").hidden = true;
         $("request-error").hidden = true;
       }
+
+      // "Richiedi" en una tarjeta: rellena el mensaje y lleva al formulario.
+      $("request-art").addEventListener("click", e => {
+        const btn = e.target.closest(".pcard-cta");
+        if (!btn) return;
+        const msg = $("r-message"), line = "Mi interessa: " + btn.dataset.gadget;
+        if (!msg.value.includes(line)) msg.value = msg.value.trim() ? msg.value.trim() + "\n" + line : line;
+        $("request-form").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
+        msg.focus({ preventScroll: true });
+      });
 
       $("request-form").addEventListener("submit", async e => {
         e.preventDefault();

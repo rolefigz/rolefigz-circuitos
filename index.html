@@ -124,14 +124,7 @@
     .pcard-tag{font-family:"Space Mono",ui-monospace,monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--quiet)}
     .pcard-name{margin:0;font-size:1.08rem;font-weight:700;line-height:1.25;color:var(--warm)}
     .pcard-desc{margin:0;font-size:.9rem;line-height:1.5;color:var(--muted)}
-    .pcard-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:14px}
-    .pcard-price{font-size:.85rem;color:var(--quiet)}
-    .pcard-cta{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;background:transparent;border:1px solid var(--line-strong);color:var(--warm);font:inherit;font-size:.88rem;font-weight:700;cursor:pointer;transition:background .2s,border-color .2s}
-    .pcards .pcard-cta svg{display:block;flex:none;width:16px;height:16px;transition:transform .25s var(--ease-out)}
-    .pcard-cta:hover{background:var(--red-solid);border-color:var(--red-solid)}
-    .pcard-cta:hover svg{transform:translateX(3px)}
-    .pcard-cta:focus-visible{outline:2px solid var(--warm);outline-offset:2px}
-    @media (prefers-reduced-motion:reduce){.pcard,.pcard-media img,.pcard-cta svg{transition:none}.pcard:hover{transform:none}.pcard:hover .pcard-media img{transform:none}}
+    @media (prefers-reduced-motion:reduce){.pcard,.pcard-media img{transition:none}.pcard:hover{transform:none}.pcard:hover .pcard-media img{transform:none}}
     .request-art .cat-media--art{position:static;display:block;width:100%;height:100%;padding:0;background:none}
     .request-art svg{display:block;width:100%;height:100%}
     .request-title{margin:0;font-size:clamp(2rem,4.4vw,3.4rem);font-weight:800;line-height:.95;letter-spacing:-.04em;text-transform:uppercase}
@@ -824,8 +817,8 @@
         { id: "su-richiesta", title: "Su richiesta", meta: "Il tuo circuito, su misura", art: ["dash", "austin"], question: "Descrivi la tua idea",
           intro: "Qualsiasi circuito, anche con un testo personalizzato sulla base. Descrivici la tua idea e ti inviamo un preventivo." },
         { id: "prossimamente", title: "Prossimamente", meta: "Nuove collezioni in arrivo", art: ["soon", "nordschleife"], soon: true },
-        { id: "gadget", title: "Gadget", meta: "Portachiavi, sottobicchieri, mensole e decorazioni", size: "wide", art: ["coaster", "suzuka"], gadgets: GADGETS, question: "Quale gadget ti interessa?",
-          intro: "Portachiavi, sottobicchieri, mensole e decorazioni da parete a tema motorsport, stampati in 3D. Dicci quale ti interessa e ti inviamo prezzo e disponibilità." },
+        { id: "gadget", title: "Gadget", meta: "Portachiavi, sottobicchieri, mensole e decorazioni", size: "wide", art: ["coaster", "suzuka"], gadgets: GADGETS,
+          intro: "Portachiavi, sottobicchieri, mensole e decorazioni da parete a tema motorsport, stampati in 3D." },
         { id: "mappe", title: "Mappe", meta: "Mappe dei circuiti in rilievo", size: "wide", art: ["map", "interlagos"],
           intro: "Mappe in rilievo dei circuiti, con le strade e il territorio intorno. Il catalogo è in preparazione: dicci quale circuito vuoi." },
       ];
@@ -878,10 +871,7 @@
           art.innerHTML = '<ul class="pcards">' + cat.gadgets.map(g =>
             '<li class="pcard"><div class="pcard-media">' + gadgetImg(g) + '</div><div class="pcard-body">' +
             '<span class="pcard-tag">' + g.tag + '</span><h2 class="pcard-name">' + g.name + '</h2><p class="pcard-desc">' + g.desc + '</p>' +
-            '<div class="pcard-foot"><span class="pcard-price">Prezzo su richiesta</span>' +
-            '<button type="button" class="pcard-cta" data-gadget="' + g.name + '">Richiedi' +
-            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></button>' +
-            '</div></div></li>').join("") + '</ul>';
+            '</div></li>').join("") + '</ul>';
         } else {
           art.setAttribute("aria-hidden", "true");
           $("request-title").before(art);
@@ -890,20 +880,11 @@
         $("request-title").textContent = cat.title;
         $("request-intro").textContent = cat.intro;
         $("r-message-label").textContent = cat.question || "Cosa ti interessa?";
-        $("request-form").hidden = false;
+        // Con catálogo de productos no hay formulario de solicitud.
+        $("request-form").hidden = !!cat.gadgets;
         $("request-done").hidden = true;
         $("request-error").hidden = true;
       }
-
-      // "Richiedi" en una tarjeta: rellena el mensaje y lleva al formulario.
-      $("request-art").addEventListener("click", e => {
-        const btn = e.target.closest(".pcard-cta");
-        if (!btn) return;
-        const msg = $("r-message"), line = "Mi interessa: " + btn.dataset.gadget;
-        if (!msg.value.includes(line)) msg.value = msg.value.trim() ? msg.value.trim() + "\n" + line : line;
-        $("request-form").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" });
-        msg.focus({ preventScroll: true });
-      });
 
       $("request-form").addEventListener("submit", async e => {
         e.preventDefault();

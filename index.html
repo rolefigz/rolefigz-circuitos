@@ -169,15 +169,14 @@
     .gallery-shell::before{left:0;background:linear-gradient(to right,var(--ink) 15%,rgba(7,8,9,0))}
     .gallery-shell::after{right:0;background:linear-gradient(to left,var(--ink) 15%,rgba(7,8,9,0))}
     .gallery-shell.is-dragging{cursor:grabbing}
-    .gallery{display:flex;align-items:center;gap:clamp(12px,1.6vw,26px);width:max-content;height:clamp(230px,40vh,400px);padding:12px calc(50vw - clamp(120px,15vw,200px));transition:transform .62s var(--ease-out)}
+    .gallery{display:flex;align-items:center;gap:clamp(12px,1.6vw,26px);width:max-content;height:clamp(230px,40vh,400px);padding:12px calc(50vw - clamp(120px,15vw,200px));transition:transform .85s cubic-bezier(.22,1,.36,1)}
     .gallery-shell.is-dragging .gallery{transition:none}
     /* Cards sit in a dim room; the active one gets a spotlight from above. --lamp: 0 = penumbra, 1 = lit. */
     @property --lamp{syntax:'<number>';inherits:true;initial-value:0}
-    .circuit-card{--lamp:0;position:relative;flex:0 0 clamp(240px,30vw,400px);height:80%;padding:0;border:0;background:transparent;transform:scale(.74);opacity:.5;filter:saturate(.55);transition:transform .62s var(--ease-out),opacity .45s ease,filter .45s ease,--lamp .4s ease}
+    .circuit-card{--lamp:0;position:relative;flex:0 0 clamp(240px,30vw,400px);height:80%;padding:0;border:0;background:transparent;transform:scale(.74);opacity:.5;filter:saturate(.55);transition:transform .85s cubic-bezier(.22,1,.36,1),opacity .6s ease,filter .6s ease,--lamp .55s ease-out}
     .circuit-card.near{transform:scale(.84);opacity:.78}
-    .circuit-card.active{--lamp:1;transform:scale(1);opacity:1;filter:none;animation:lamp-on .7s linear}
+    .circuit-card.active{--lamp:1;transform:scale(1);opacity:1;filter:none;transition:transform .85s cubic-bezier(.22,1,.36,1),opacity .6s ease,filter .6s ease,--lamp .9s cubic-bezier(.4,0,.2,1) .18s}
     .circuit-card:hover:not(.active){opacity:.9}
-    @keyframes lamp-on{0%{--lamp:0}12%{--lamp:.5}20%{--lamp:.22}32%{--lamp:.75}42%{--lamp:.5}58%{--lamp:1}72%{--lamp:.88}100%{--lamp:1}}
     /* Overhead spot: a narrow cone (soft angular edges, brighter axis) that fades in from above and dies on the floor. */
     .card-beam{position:absolute;left:50%;bottom:15%;width:240%;height:230%;transform:translateX(-50%);pointer-events:none;opacity:var(--lamp);
       background:conic-gradient(from 163deg at 50% 0,transparent 0deg,rgba(255,246,228,.045) 7deg,rgba(255,246,228,.11) 14deg,rgba(255,246,228,.12) 17deg,rgba(255,246,228,.11) 20deg,rgba(255,246,228,.045) 27deg,transparent 34deg);
@@ -349,7 +348,7 @@
     }
     @media (prefers-reduced-motion:reduce){
       .gallery,.progress-fill,.btn,.card-label{transition-duration:.01s}
-      .circuit-card{transition:opacity .2s ease,filter .2s ease,--lamp .2s ease}
+      .circuit-card,.circuit-card.active{transition:opacity .2s ease,filter .2s ease,--lamp .2s ease}
       .circuit-card.active{animation:none}
       .circuit-card.active .track-lit,.detail .track path{animation:none;stroke-dasharray:none}
       .cart[open],.cart-count.bump,.product-photo{animation:none}
@@ -1020,11 +1019,39 @@
         collectionId = id;
         CIRCUITS = COLLECTIONS[id].items;
         activeIndex = 0;
+        shownIndex = -1;
         renderGallery();
       }
 
+      // Cambia un texto deslizándolo: sale hacia un lado y el nuevo entra desde el otro.
+      const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)");
+      function swapText(el, text, dir, delay = 0) {
+        const token = (el._swap = (el._swap || 0) + 1);
+        clearTimeout(el._swapTimer);
+        if (el.getAnimations) el.getAnimations().forEach(a => a.cancel());
+        if (!dir || reduceMotion.matches || !el.animate) { el.textContent = text; return; }
+        const dx = 26 * dir;
+        el.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateX(" + -dx + "px)" }],
+          { duration: 200, delay, easing: "cubic-bezier(.4,0,1,1)", fill: "forwards" });
+        // El cambio de texto va por temporizador: siempre termina en el último circuito aunque se pulse muy rápido.
+        el._swapTimer = setTimeout(() => {
+          if (token !== el._swap) return;
+          el.getAnimations().forEach(a => a.cancel());
+          el.textContent = text;
+          el.animate([{ opacity: 0, transform: "translateX(" + dx + "px)" }, { opacity: 1, transform: "none" }],
+            { duration: 420, easing: "cubic-bezier(.22,1,.36,1)" });
+        }, delay + 200);
+      }
+      let shownIndex = -1;
+
       function updateGallery(animate = true) {
         const c = CIRCUITS[activeIndex];
+        let dir = 0;
+        if (animate && shownIndex >= 0 && shownIndex !== activeIndex) {
+          const diff = activeIndex - shownIndex;
+          dir = Math.sign(Math.abs(diff) > CIRCUITS.length / 2 ? -diff : diff);
+        }
+        shownIndex = activeIndex;
         if (!animate) gallery.style.transition = "none";
         const center = shell.clientWidth / 2;
         const card = cards[activeIndex];
@@ -1032,8 +1059,8 @@
         gallery.style.transform = "translateX(" + offset + "px)";
         if (!animate) requestAnimationFrame(() => { gallery.style.transition = ""; });
 
-        $("active-country").textContent = c.heading;
-        $("active-venue").textContent = c.venue;
+        swapText($("active-country"), c.heading, dir);
+        swapText($("active-venue"), c.venue, dir, 40);
         $("progress-round").textContent = pad(c.round);
         $("progress-fill").style.transform = "scaleX(" + (c.round / CIRCUITS.length) + ")";
         cards.forEach((el, i) => {

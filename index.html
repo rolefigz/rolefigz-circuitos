@@ -1044,7 +1044,8 @@
       }
       let shownIndex = -1;
 
-      function updateGallery(animate = true) {
+      let galleryOffset = 0;
+      function updateGallery(animate = true, dragOffset = null) {
         const c = CIRCUITS[activeIndex];
         let dir = 0;
         if (animate && shownIndex >= 0 && shownIndex !== activeIndex) {
@@ -1052,12 +1053,15 @@
           dir = Math.sign(Math.abs(diff) > CIRCUITS.length / 2 ? -diff : diff);
         }
         shownIndex = activeIndex;
-        if (!animate) gallery.style.transition = "none";
-        const center = shell.clientWidth / 2;
-        const card = cards[activeIndex];
-        const offset = center - (card.offsetLeft + card.offsetWidth / 2);
-        gallery.style.transform = "translateX(" + offset + "px)";
-        if (!animate) requestAnimationFrame(() => { gallery.style.transition = ""; });
+        let offset = dragOffset;
+        if (offset === null) {
+          if (!animate) gallery.style.transition = "none";
+          const card = cards[activeIndex];
+          offset = shell.clientWidth / 2 - (card.offsetLeft + card.offsetWidth / 2);
+          gallery.style.transform = "translateX(" + offset + "px)";
+          galleryOffset = offset;
+          if (!animate) requestAnimationFrame(() => { gallery.style.transition = ""; });
+        }
 
         swapText($("active-country"), c.heading, dir);
         swapText($("active-venue"), c.venue, dir, 40);
@@ -1197,6 +1201,11 @@
       // Drag: capture only once the pointer has actually travelled, so plain
       // clicks on cards and arrows are never retargeted to the shell.
       let startX = null, dragged = false, suppressClick = false, pointerId = null;
+      // Arrastre: la tira sigue al puntero, se enciende la tarjeta que queda en el centro
+      // y al soltar encaja en la más cercana (con inercia si se lanza rápido).
+      let dragStartIndex = 0, dragBase = 0, lastX = 0, lastT = 0, velocity = 0;
+      const cardStep = () => (cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : shell.clientWidth);
+      const clampIndex = i => Math.max(0, Math.min(CIRCUITS.length - 1, i));
       shell.addEventListener("pointerdown", e => {
         if (e.button !== 0) return;
         startX = e.clientX; dragged = false; pointerId = e.pointerId;
@@ -1207,21 +1216,49 @@
           dragged = true;
           shell.classList.add("is-dragging");
           shell.setPointerCapture(e.pointerId);
+          dragStartIndex = activeIndex;
+          dragBase = galleryOffset;
+          lastX = e.clientX; lastT = performance.now(); velocity = 0;
         }
+        if (!dragged) return;
+        const now = performance.now();
+        if (now > lastT) velocity = velocity * 0.6 + ((e.clientX - lastX) / (now - lastT)) * 0.4;
+        lastX = e.clientX; lastT = now;
+        let delta = e.clientX - startX;
+        // Resistencia al pasar del primero o del último.
+        const step = cardStep();
+        const minDelta = -(CIRCUITS.length - 1 - dragStartIndex) * step, maxDelta = dragStartIndex * step;
+        if (delta > maxDelta) delta = maxDelta + (delta - maxDelta) * 0.3;
+        if (delta < minDelta) delta = minDelta + (delta - minDelta) * 0.3;
+        const offset = dragBase + delta;
+        gallery.style.transform = "translateX(" + offset + "px)";
+        const idx = clampIndex(Math.round(dragStartIndex - delta / step));
+        if (idx !== activeIndex) { activeIndex = idx; updateGallery(true, offset); }
       });
       const endDrag = e => {
         if (startX === null) return;
-        const delta = e.clientX - startX;
         if (dragged) {
           suppressClick = true;
           setTimeout(() => { suppressClick = false; }, 0);
-          if (Math.abs(delta) > 35) move(delta < 0 ? 1 : -1);
+          shell.classList.remove("is-dragging");
+          const delta = e.clientX - startX;
+          if (performance.now() - lastT > 90) velocity = 0;
+          const projected = delta + velocity * 220;
+          let target = clampIndex(Math.round(dragStartIndex - projected / cardStep()));
+          if (target === dragStartIndex && Math.abs(delta) > 35) target = clampIndex(dragStartIndex + (delta < 0 ? 1 : -1));
+          activeIndex = target;
+          updateGallery();
+          const c = CIRCUITS[activeIndex];
+          $("browse-status").textContent = c.heading + ", " + position(c).toLowerCase();
         }
         startX = null; dragged = false;
         shell.classList.remove("is-dragging");
       };
       shell.addEventListener("pointerup", endDrag);
-      shell.addEventListener("pointercancel", () => { startX = null; dragged = false; shell.classList.remove("is-dragging"); });
+      shell.addEventListener("pointercancel", () => {
+        if (dragged) { shell.classList.remove("is-dragging"); updateGallery(); }
+        startX = null; dragged = false;
+      });
 
       let wheelLock = false;
       shell.addEventListener("wheel", e => {

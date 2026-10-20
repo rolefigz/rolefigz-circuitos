@@ -142,13 +142,26 @@
     .gallery-shell.is-dragging{cursor:grabbing}
     .gallery{display:flex;align-items:center;gap:clamp(12px,1.6vw,26px);width:max-content;height:clamp(230px,40vh,400px);padding:12px calc(50vw - clamp(120px,15vw,200px));transition:transform .62s var(--ease-out)}
     .gallery-shell.is-dragging .gallery{transition:none}
-    .circuit-card{position:relative;flex:0 0 clamp(240px,30vw,400px);height:80%;padding:0;border:0;background:transparent;transform:scale(.74);opacity:.32;filter:saturate(.4);transition:transform .62s var(--ease-out),opacity .45s ease,filter .45s ease}
-    .circuit-card.near{transform:scale(.84);opacity:.6}
-    .circuit-card.active{transform:scale(1);opacity:1;filter:none}
-    .circuit-card:hover:not(.active){opacity:.75}
+    /* Cards sit in a dim room; the active one gets a spotlight from above. --lamp: 0 = penumbra, 1 = lit. */
+    @property --lamp{syntax:'<number>';inherits:true;initial-value:0}
+    .circuit-card{--lamp:0;position:relative;flex:0 0 clamp(240px,30vw,400px);height:80%;padding:0;border:0;background:transparent;transform:scale(.74);opacity:.5;filter:saturate(.55);transition:transform .62s var(--ease-out),opacity .45s ease,filter .45s ease,--lamp .4s ease}
+    .circuit-card.near{transform:scale(.84);opacity:.78}
+    .circuit-card.active{--lamp:1;transform:scale(1);opacity:1;filter:none;animation:lamp-on .7s linear}
+    .circuit-card:hover:not(.active){opacity:.9}
+    @keyframes lamp-on{0%{--lamp:0}12%{--lamp:.55}20%{--lamp:.18}32%{--lamp:.8}42%{--lamp:.45}58%{--lamp:1}72%{--lamp:.85}100%{--lamp:1}}
+    .card-beam{position:absolute;left:50%;top:-34%;width:110%;height:122%;transform:translateX(-50%);clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);background:linear-gradient(to bottom,transparent 24%,rgba(255,246,228,.15) 44%,rgba(255,246,228,.06) 74%,transparent);filter:blur(12px);opacity:var(--lamp);pointer-events:none}
+    .card-stage{position:absolute;inset:3% 4% 15%;pointer-events:none}
+    .card-pool{position:absolute;left:-14%;right:-14%;bottom:-16%;height:32%;background:radial-gradient(ellipse 40% 26% at 50% 50%,rgba(0,0,0,calc(.35 + var(--lamp) * .5)),transparent 100%),radial-gradient(ellipse 50% 50% at 50% 50%,rgba(255,246,228,calc(var(--lamp) * .2)),rgba(255,246,228,calc(var(--lamp) * .07)) 55%,transparent 100%)}
+    .circuit-card:not(.has-photo) .card-pool{top:0;bottom:0;height:auto;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(255,246,228,calc(var(--lamp) * .11)),rgba(255,246,228,calc(var(--lamp) * .04)) 55%,transparent 100%)}
+    .card-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%}
+    .card-photo--dim{filter:brightness(.5) saturate(.65) contrast(.95)}
+    .card-photo--lit{opacity:var(--lamp);filter:brightness(1.05) sepia(.12) saturate(1.05);-webkit-mask-image:radial-gradient(ellipse 72% 80% at 50% 40%,#000 38%,rgba(0,0,0,.55) 72%,transparent 100%);mask-image:radial-gradient(ellipse 72% 80% at 50% 40%,#000 38%,rgba(0,0,0,.55) 72%,transparent 100%)}
     .track{width:100%;height:100%;overflow:visible}
     .track path{fill:none;stroke:var(--track-idle);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;transition:stroke .45s ease}
-    .circuit-card.active .track path,.detail .track path{stroke:#ff2d36;stroke-width:4.5;filter:drop-shadow(0 2px 6px rgba(238,43,50,.55));stroke-dasharray:1;stroke-dashoffset:1;animation:trace 2.4s var(--ease-out) forwards}
+    .circuit-card .track-dim{stroke:#5d6168}
+    .circuit-card .track-lit{stroke:#f4efe6;stroke-width:4.5;opacity:var(--lamp);filter:drop-shadow(0 2px 6px rgba(255,246,228,.35))}
+    .circuit-card.active .track-lit,.detail .track path{stroke-dasharray:1;stroke-dashoffset:1;animation:trace 2.4s var(--ease-out) forwards}
+    .detail .track path{stroke:#ff2d36;stroke-width:4.5;filter:drop-shadow(0 2px 6px rgba(238,43,50,.55))}
     @keyframes trace{to{stroke-dashoffset:0}}
     .card-label{position:absolute;inset:auto 6px 0;display:flex;justify-content:space-between;align-items:baseline;gap:12px;transition:opacity .3s ease}
     .circuit-card.active .card-label{opacity:0}
@@ -295,8 +308,10 @@
       .circuit-country{font-size:clamp(1.8rem,4vw,3rem)}
     }
     @media (prefers-reduced-motion:reduce){
-      .gallery,.circuit-card,.progress-fill,.btn,.card-label{transition-duration:.01s}
-      .circuit-card.active .track path,.detail .track path{animation:none;stroke-dasharray:none}
+      .gallery,.progress-fill,.btn,.card-label{transition-duration:.01s}
+      .circuit-card{transition:opacity .2s ease,filter .2s ease,--lamp .2s ease}
+      .circuit-card.active{animation:none}
+      .circuit-card.active .track-lit,.detail .track path{animation:none;stroke-dasharray:none}
       .cart[open],.cart-count.bump,.product-photo{animation:none}
       .cat-media,.cat::before,.cat-go{transition:none}
       .vapour-overlay{transition:opacity .35s ease}
@@ -555,7 +570,7 @@
     Object.entries(EXTRA_TRACKS).forEach(([slug, d]) => { INFO[slug].path = d; });
 
     // Maintained by herramientas/recortar_fondo.py: circuits with a photo in circuiti/<slug>.webp.
-    const PHOTOS = ["melbourne","shanghai","suzuka","sakhir","jeddah","miami","montreal","monaco","barcelona","spielberg","silverstone","spa","hungaroring","zandvoort","monza","madrid","baku","austin","mexico-city","interlagos","las-vegas","lusail","yas-marina"];
+    const PHOTOS = ["melbourne","shanghai","suzuka","sakhir","jeddah","miami","montreal","monaco","barcelona","spielberg","silverstone","spa","hungaroring","zandvoort","monza","madrid","baku","austin","mexico-city","interlagos","las-vegas","lusail","yas-marina","le-mans","nordschleife","daytona","bathurst","sebring","paul-ricard","brands-hatch","misano","magny-cours","nurburgring","portimao","imola","mugello","vallelunga"];
     PHOTOS.forEach(slug => { if (INFO[slug]) INFO[slug].photo = "circuiti/" + slug + ".webp"; });
 
     // Collections with a catalog. `calendar` numbers circuits as race rounds.
@@ -871,11 +886,23 @@
       const isCalendar = () => !!COLLECTIONS[collectionId].calendar;
       const position = c => (isCalendar() ? "Round " : "Circuito ") + pad(c.round) + " di " + CIRCUITS.length;
 
+      // Card photos load only when their card is the active one or up to two places away.
+      function loadCardPhotos(card) {
+        card.querySelectorAll("img[data-src]").forEach(img => { img.src = img.dataset.src; img.removeAttribute("data-src"); });
+      }
+
+      // Product photo when there is one (dim copy + spotlit copy); otherwise the SVG trace in the same light.
+      const cardMedia = c => c.photo
+        ? '<img class="card-photo card-photo--dim" data-src="' + c.photo + '" alt="" decoding="async">' +
+          '<img class="card-photo card-photo--lit" data-src="' + c.photo + '" alt="" decoding="async">'
+        : '<svg class="track" viewBox="0 0 320 190"><path class="track-dim" d="' + c.path + '"></path><path class="track-lit" pathLength="1" d="' + c.path + '"></path></svg>';
+
       function renderGallery() {
         const col = COLLECTIONS[collectionId];
         gallery.innerHTML = CIRCUITS.map((c, i) =>
-          '<button class="circuit-card" type="button" data-index="' + i + '" aria-label="' + position(c) + ': ' + c.heading + ', ' + c.venue + '">' +
-            '<svg class="track" viewBox="0 0 320 190" aria-hidden="true"><path pathLength="1" d="' + c.path + '"></path></svg>' +
+          '<button class="circuit-card' + (c.photo ? " has-photo" : "") + '" type="button" data-index="' + i + '" aria-label="' + position(c) + ': ' + c.heading + ', ' + c.venue + '">' +
+            '<span class="card-beam" aria-hidden="true"></span>' +
+            '<span class="card-stage" aria-hidden="true"><span class="card-pool"></span>' + cardMedia(c) + '</span>' +
             '<span class="card-label" aria-hidden="true"><span class="card-round num">' + (col.calendar ? "R" : "") + pad(c.round) + '</span><span class="card-name">' + c.heading + '</span></span>' +
           '</button>'
         ).join("");
@@ -919,10 +946,11 @@
           el.classList.toggle("near", Math.abs(i - activeIndex) === 1);
           el.setAttribute("aria-current", i === activeIndex ? "true" : "false");
         });
+        cards.slice(Math.max(0, activeIndex - 2), activeIndex + 3).forEach(loadCardPhotos);
         [0, 1, -1].forEach(step => preloadPhoto(CIRCUITS[(activeIndex + step + CIRCUITS.length) % CIRCUITS.length]));
       }
 
-      // Warm the cache for the circuits the visitor is looking at, so their detail opens instantly.
+      // Warm the cache for the circuits around the active one, so cards light up and details open instantly.
       const preloaded = new Map();
       function preloadPhoto(c) {
         if (!c.photo || preloaded.has(c.photo)) return;

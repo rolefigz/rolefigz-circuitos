@@ -76,6 +76,7 @@
     .cat-media--stage-sm img{height:54%}
     .cat-media--gadgets{display:grid;grid-template-columns:1.7fr .55fr .55fr 1.3fr;grid-template-rows:100%;align-items:center;gap:3%;padding:20px 6% 96px;background:radial-gradient(ellipse 70% 60% at 50% 40%,rgba(245,241,233,.09),transparent 72%)}
     .cat-media--gadgets img{width:100%;height:100%;min-width:0;min-height:0;object-fit:contain}
+    .cat-media--row4{grid-template-columns:repeat(4,1fr);gap:4%}
     .cat-media--gadgets img,.pcard-media img{filter:drop-shadow(0 0 1px rgba(245,241,233,.4)) drop-shadow(0 14px 14px rgba(0,0,0,.6))}
     .cat-media--art{display:grid;place-items:center;padding:8% 10% 30%;background:radial-gradient(ellipse 70% 60% at 50% 38%,rgba(238,43,50,.10),transparent 72%)}
     .cat-media--art svg{width:100%;height:100%;overflow:visible}
@@ -124,6 +125,11 @@
     .pcard-tag{font-family:"Space Mono",ui-monospace,monospace;font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--quiet)}
     .pcard-name{margin:0;font-size:1.08rem;font-weight:700;line-height:1.25;color:var(--warm)}
     .pcard-desc{margin:0;font-size:.9rem;line-height:1.5;color:var(--muted)}
+    .pcard-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:auto;padding-top:14px}
+    .pcard-price{font-size:1.05rem;font-weight:700;color:var(--warm)}
+    .pcard-cta{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;background:transparent;border:1px solid var(--line-strong);color:var(--warm);font:inherit;font-size:.88rem;font-weight:700;cursor:pointer;transition:background .2s,border-color .2s}
+    .pcard-cta:hover,.pcard-cta.is-added{background:var(--red-solid);border-color:var(--red-solid)}
+    .pcard-cta:focus-visible{outline:2px solid var(--warm);outline-offset:2px}
     @media (prefers-reduced-motion:reduce){.pcard,.pcard-media img{transition:none}.pcard:hover{transform:none}.pcard:hover .pcard-media img{transform:none}}
     .request-art .cat-media--art{position:static;display:block;width:100%;height:100%;padding:0;background:none}
     .request-art svg{display:block;width:100%;height:100%}
@@ -808,7 +814,16 @@
         { slug: "sottobicchieri-f1", name: "Sottobicchieri F1 con supporto", tag: "Sottobicchieri",
           desc: "Set di sottobicchieri con i tracciati e il supporto coordinato." },
       ];
-      const gadgetImg = g => '<img src="gadget/' + g.slug + '.webp" alt="' + g.name + '" decoding="async">';
+      GADGETS.forEach(g => { g.src = "gadget/" + g.slug + ".webp"; });
+      // Productos con precio fijo: se añaden al carrito tal cual (sin tamaños).
+      const CALENDARS = ["2024", "2025", "2026", "2027"].map(y => ({ slug: "calendario-f1-" + y, name: "Calendario F1 " + y, card: true,
+        tag: "Calendario", src: "calendari/f1-" + y + ".webp", price: 24.99 }));
+      Object.assign(CALENDARS[0], { desc: "I circuiti della stagione 2024 in rilievo, cornice nera su fondo bianco." });
+      Object.assign(CALENDARS[1], { desc: "La stagione 2025 con paesi e circuiti, cornice rossa su fondo nero." });
+      Object.assign(CALENDARS[2], { desc: "La stagione 2026 con paesi e città, cornice rossa su fondo nero." });
+      Object.assign(CALENDARS[3], { desc: "La stagione 2027 con la data di ogni gara, cornice arancione." });
+      const PRODUCTS = Object.fromEntries(CALENDARS.map(p => [p.slug, p]));
+      const productImg = g => '<img src="' + g.src + '" alt="' + g.name + '" decoding="async">';
 
       const CATEGORIES = [
         { id: "circuiti-f1", title: "Circuiti F1", meta: COLLECTIONS["circuiti-f1"].items.length + " circuiti · Stagione 2026", size: "hero", photo: "circuiti/monza.webp" },
@@ -817,14 +832,14 @@
         { id: "su-richiesta", title: "Su richiesta", meta: "Il tuo circuito, su misura", art: ["dash", "austin"], question: "Descrivi la tua idea",
           intro: "Qualsiasi circuito, anche con un testo personalizzato sulla base. Descrivici la tua idea e ti inviamo un preventivo." },
         { id: "prossimamente", title: "Prossimamente", meta: "Nuove collezioni in arrivo", art: ["soon", "nordschleife"], soon: true },
-        { id: "gadget", title: "Gadget", meta: "Portachiavi, sottobicchieri, mensole e decorazioni", size: "wide", art: ["coaster", "suzuka"], gadgets: GADGETS,
+        { id: "gadget", title: "Gadget", meta: "Portachiavi, sottobicchieri, mensole e decorazioni", size: "wide", art: ["coaster", "suzuka"], products: GADGETS,
           intro: "Portachiavi, sottobicchieri, mensole e decorazioni da parete a tema motorsport, stampati in 3D." },
-        { id: "mappe", title: "Mappe", meta: "Mappe dei circuiti in rilievo", size: "wide", art: ["map", "interlagos"],
-          intro: "Mappe in rilievo dei circuiti, con le strade e il territorio intorno. Il catalogo è in preparazione: dicci quale circuito vuoi." },
+        { id: "calendari", title: "Calendari", meta: "Calendari F1 in rilievo · 24,99 €", size: "wide", art: ["map", "interlagos"], products: CALENDARS, row4: true,
+          intro: "I calendari della Formula 1 con tutti i circuiti in rilievo, stampati in 3D e pronti da appendere." },
       ];
       const categoryById = id => CATEGORIES.find(c => c.id === id);
-      const mediaOf = cat => cat.gadgets
-        ? '<div class="cat-media cat-media--gadgets">' + cat.gadgets.filter(g => g.card).map(g => gadgetImg(g).replace(/alt="[^"]*"/, 'alt=""')).join("") + '</div>'
+      const mediaOf = cat => cat.products
+        ? '<div class="cat-media cat-media--gadgets' + (cat.row4 ? " cat-media--row4" : "") + '">' + cat.products.filter(g => g.card).map(g => productImg(g).replace(/alt="[^"]*"/, 'alt=""')).join("") + '</div>'
         : cat.photo
         ? '<div class="cat-media cat-media--stage' + (cat.size === "hero" ? "" : " cat-media--stage-sm") + '"><img src="' + cat.photo + '" alt="' + (cat.alt || "") + '" decoding="async"></div>'
         : '<div class="cat-media cat-media--art">' + ART[cat.art[0]](cat.art[1]) + '</div>';
@@ -863,15 +878,17 @@
       function renderRequest(cat) {
         requestCategory = cat;
         const art = $("request-art");
-        art.classList.toggle("request-art--gallery", !!cat.gadgets);
-        if (cat.gadgets) {
+        art.classList.toggle("request-art--gallery", !!cat.products);
+        if (cat.products) {
           // Con catálogo, los productos van después de la intro y antes del formulario.
           art.removeAttribute("aria-hidden");
           $("request-intro").after(art);
-          art.innerHTML = '<ul class="pcards">' + cat.gadgets.map(g =>
-            '<li class="pcard"><div class="pcard-media">' + gadgetImg(g) + '</div><div class="pcard-body">' +
+          art.innerHTML = '<ul class="pcards">' + cat.products.map(g =>
+            '<li class="pcard"><div class="pcard-media">' + productImg(g) + '</div><div class="pcard-body">' +
             '<span class="pcard-tag">' + g.tag + '</span><h2 class="pcard-name">' + g.name + '</h2><p class="pcard-desc">' + g.desc + '</p>' +
-            '</div></li>').join("") + '</ul>';
+            (g.price ? '<div class="pcard-foot"><span class="pcard-price num">' + euro.format(g.price) + '</span>' +
+              '<button type="button" class="pcard-cta" data-product="' + g.slug + '">Aggiungi al carrello</button></div>' : '') +
+            '</div></li>').join("") + '</ul><p class="sr-only" id="pcard-status" role="status"></p>';
         } else {
           art.setAttribute("aria-hidden", "true");
           $("request-title").before(art);
@@ -881,7 +898,7 @@
         $("request-intro").textContent = cat.intro;
         $("r-message-label").textContent = cat.question || "Cosa ti interessa?";
         // Con catálogo de productos no hay formulario de solicitud.
-        $("request-form").hidden = !!cat.gadgets;
+        $("request-form").hidden = !!cat.products;
         $("request-done").hidden = true;
         $("request-error").hidden = true;
       }
@@ -1209,10 +1226,16 @@
       try {
         // Older carts stored the F1 calendar index (`i`); items are now keyed by circuit slug (`c`).
         cart = JSON.parse(localStorage.getItem("rf-cart") || "[]")
-          .map(it => (it.c ? it : { c: F1_SLUGS[it.i], s: it.s, q: it.q }))
-          .filter(it => INFO[it.c] && sizeOf(it.s) && it.q > 0);
+          .map(it => (it.c || it.p ? it : { c: F1_SLUGS[it.i], s: it.s, q: it.q }))
+          .filter(it => (it.p ? PRODUCTS[it.p] : INFO[it.c] && sizeOf(it.s)) && it.q > 0);
       } catch (e) { cart = []; }
       const saveCart = () => { try { localStorage.setItem("rf-cart", JSON.stringify(cart)); } catch (e) {} };
+      // Una línea del carrito: un circuito con tamaño (`c`, `s`) o un producto de precio fijo (`p`).
+      function lineOf(it) {
+        if (it.p) { const p = PRODUCTS[it.p]; return { name: p.name, meta: p.tag, price: p.price }; }
+        const c = INFO[it.c], s = sizeOf(it.s);
+        return { name: c.short, meta: c.venue + " · " + s.label + ", " + dims(c, s), order: c.short + " — " + c.venue + " · " + s.label + " (" + dims(c, s) + ")", price: s.price };
+      }
 
       function renderCart() {
         const count = cart.reduce((n, it) => n + it.q, 0);
@@ -1222,17 +1245,17 @@
         $("cart-count-label").textContent = count === 1 ? "articolo" : "articoli";
         $("cart-empty").hidden = cart.length > 0;
         $("cart-foot").hidden = cart.length === 0;
-        $("cart-total").textContent = euro.format(cart.reduce((sum, it) => sum + sizeOf(it.s).price * it.q, 0));
+        $("cart-total").textContent = euro.format(cart.reduce((sum, it) => sum + lineOf(it).price * it.q, 0));
         $("cart-items").innerHTML = cart.map((it, idx) => {
-          const c = INFO[it.c], s = sizeOf(it.s);
+          const l = lineOf(it);
           return '<li class="cart-item">' +
-            '<span class="cart-item-name">' + c.short + '</span>' +
-            '<span class="cart-item-price num">' + euro.format(s.price * it.q) + '</span>' +
-            '<span class="cart-item-meta">' + c.venue + ' · ' + s.label + ', ' + dims(c, s) + '</span>' +
+            '<span class="cart-item-name">' + l.name + '</span>' +
+            '<span class="cart-item-price num">' + euro.format(l.price * it.q) + '</span>' +
+            '<span class="cart-item-meta">' + l.meta + '</span>' +
             '<span class="cart-item-controls">' +
-              '<button class="qty-btn" type="button" data-act="dec" data-idx="' + idx + '" aria-label="Rimuovi un\'unità di ' + c.short + '"><i data-lucide="minus" aria-hidden="true"></i></button>' +
+              '<button class="qty-btn" type="button" data-act="dec" data-idx="' + idx + '" aria-label="Rimuovi un\'unità di ' + l.name + '"><i data-lucide="minus" aria-hidden="true"></i></button>' +
               '<span class="qty num"><span class="sr-only">Quantità: </span>' + it.q + '</span>' +
-              '<button class="qty-btn" type="button" data-act="inc" data-idx="' + idx + '" aria-label="Aggiungi un\'unità di ' + c.short + '"><i data-lucide="plus" aria-hidden="true"></i></button>' +
+              '<button class="qty-btn" type="button" data-act="inc" data-idx="' + idx + '" aria-label="Aggiungi un\'unità di ' + l.name + '"><i data-lucide="plus" aria-hidden="true"></i></button>' +
               '<button class="remove-btn" type="button" data-act="del" data-idx="' + idx + '">Rimuovi</button>' +
             '</span></li>';
         }).join("");
@@ -1266,6 +1289,24 @@
         countEl.classList.remove("bump"); void countEl.offsetWidth; countEl.classList.add("bump");
       });
 
+      // "Aggiungi al carrello" en las tarjetas de producto.
+      $("request-art").addEventListener("click", e => {
+        const btn = e.target.closest(".pcard-cta");
+        if (!btn) return;
+        const slug = btn.dataset.product;
+        const existing = cart.find(it => it.p === slug);
+        if (existing) existing.q += 1; else cart.push({ p: slug, q: 1 });
+        saveCart();
+        renderCart();
+        btn.textContent = "Aggiunto ✓";
+        btn.classList.add("is-added");
+        clearTimeout(btn._t);
+        btn._t = setTimeout(() => { btn.textContent = "Aggiungi al carrello"; btn.classList.remove("is-added"); }, 1600);
+        $("pcard-status").textContent = PRODUCTS[slug].name + " aggiunto al carrello.";
+        const countEl = $("cart-count");
+        countEl.classList.remove("bump"); void countEl.offsetWidth; countEl.classList.add("bump");
+      });
+
       // Orders are relayed to this inbox by FormSubmit (static site, no backend).
       const ORDER_EMAIL = "rolefigz@gmail.com";
       const ORDER_ENDPOINT = "https://formsubmit.co/ajax/" + ORDER_EMAIL;
@@ -1276,13 +1317,13 @@
         $("cart-title").textContent = id === "step-checkout" ? "Dati di spedizione" : "Il tuo carrello";
       }
 
-      const cartTotal = () => cart.reduce((sum, it) => sum + sizeOf(it.s).price * it.q, 0);
+      const cartTotal = () => cart.reduce((sum, it) => sum + lineOf(it).price * it.q, 0);
       const cartUnits = () => cart.reduce((n, it) => n + it.q, 0);
 
       function orderLines() {
         return cart.map(it => {
-          const c = INFO[it.c], s = sizeOf(it.s);
-          return it.q + " × " + c.short + " — " + c.venue + " · " + s.label + " (" + dims(c, s) + ") · " + euro.format(s.price * it.q);
+          const l = lineOf(it);
+          return it.q + " × " + (l.order || l.name) + " · " + euro.format(l.price * it.q);
         }).join("\n");
       }
 

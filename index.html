@@ -134,11 +134,17 @@
     /* Browse view */
     .browse{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr) auto;align-content:start;gap:clamp(8px,2vh,20px);padding:clamp(12px,2.5vh,28px) 0 clamp(16px,3vh,28px);min-width:0}
     .browse[hidden],.detail[hidden]{display:none}
-    .intro{padding:0 var(--gutter);text-align:center}
+    .intro{position:relative;z-index:1;padding:0 var(--gutter);text-align:center}
     .circuit-country{margin:0;font-size:clamp(2.2rem,5.4vw,4.6rem);font-weight:800;line-height:.95;letter-spacing:-.04em;text-transform:uppercase;text-wrap:balance}
     .circuit-venue{margin:12px auto 0;max-width:48ch;font-size:clamp(1rem,1.4vw,1.2rem);color:var(--muted);text-wrap:balance;min-height:1.5em}
 
     .gallery-shell{position:relative;overflow:hidden;touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+    /* Clip only sideways, so the spotlight can come down from above the title. */
+    @supports (overflow-x:clip){.gallery-shell{overflow:visible;overflow-x:clip}}
+    /* Neighbours fade into the dark at the screen edges instead of being cut mid-word. */
+    .gallery-shell::before,.gallery-shell::after{content:"";position:absolute;top:0;bottom:0;z-index:2;width:clamp(28px,9vw,140px);pointer-events:none}
+    .gallery-shell::before{left:0;background:linear-gradient(to right,var(--ink) 15%,rgba(7,8,9,0))}
+    .gallery-shell::after{right:0;background:linear-gradient(to left,var(--ink) 15%,rgba(7,8,9,0))}
     .gallery-shell.is-dragging{cursor:grabbing}
     .gallery{display:flex;align-items:center;gap:clamp(12px,1.6vw,26px);width:max-content;height:clamp(230px,40vh,400px);padding:12px calc(50vw - clamp(120px,15vw,200px));transition:transform .62s var(--ease-out)}
     .gallery-shell.is-dragging .gallery{transition:none}
@@ -148,14 +154,25 @@
     .circuit-card.near{transform:scale(.84);opacity:.78}
     .circuit-card.active{--lamp:1;transform:scale(1);opacity:1;filter:none;animation:lamp-on .7s linear}
     .circuit-card:hover:not(.active){opacity:.9}
-    @keyframes lamp-on{0%{--lamp:0}12%{--lamp:.55}20%{--lamp:.18}32%{--lamp:.8}42%{--lamp:.45}58%{--lamp:1}72%{--lamp:.85}100%{--lamp:1}}
-    .card-beam{position:absolute;left:50%;top:-34%;width:110%;height:122%;transform:translateX(-50%);clip-path:polygon(44% 0,56% 0,100% 100%,0 100%);background:linear-gradient(to bottom,transparent 24%,rgba(255,246,228,.15) 44%,rgba(255,246,228,.06) 74%,transparent);filter:blur(12px);opacity:var(--lamp);pointer-events:none}
-    .card-stage{position:absolute;inset:3% 4% 15%;pointer-events:none}
-    .card-pool{position:absolute;left:-14%;right:-14%;bottom:-16%;height:32%;background:radial-gradient(ellipse 40% 26% at 50% 50%,rgba(0,0,0,calc(.35 + var(--lamp) * .5)),transparent 100%),radial-gradient(ellipse 50% 50% at 50% 50%,rgba(255,246,228,calc(var(--lamp) * .2)),rgba(255,246,228,calc(var(--lamp) * .07)) 55%,transparent 100%)}
-    .circuit-card:not(.has-photo) .card-pool{top:0;bottom:0;height:auto;background:radial-gradient(ellipse 50% 50% at 50% 50%,rgba(255,246,228,calc(var(--lamp) * .11)),rgba(255,246,228,calc(var(--lamp) * .04)) 55%,transparent 100%)}
-    .card-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;object-position:50% 100%}
+    @keyframes lamp-on{0%{--lamp:0}12%{--lamp:.5}20%{--lamp:.22}32%{--lamp:.75}42%{--lamp:.5}58%{--lamp:1}72%{--lamp:.88}100%{--lamp:1}}
+    /* Overhead spot: a narrow cone (soft angular edges, brighter axis) that fades in from above and dies on the floor. */
+    .card-beam{position:absolute;left:50%;bottom:15%;width:240%;height:230%;transform:translateX(-50%);pointer-events:none;opacity:var(--lamp);
+      background:conic-gradient(from 163deg at 50% 0,transparent 0deg,rgba(255,246,228,.045) 7deg,rgba(255,246,228,.11) 14deg,rgba(255,246,228,.12) 17deg,rgba(255,246,228,.11) 20deg,rgba(255,246,228,.045) 27deg,transparent 34deg);
+      -webkit-mask-image:linear-gradient(to bottom,transparent,rgba(0,0,0,.2) 25%,rgba(0,0,0,.75) 55%,#000 82%,transparent);mask-image:linear-gradient(to bottom,transparent,rgba(0,0,0,.2) 25%,rgba(0,0,0,.75) 55%,#000 82%,transparent)}
+    .card-stage{position:absolute;inset:3% 4% 15%;pointer-events:none;container-type:size}
+    /* Box with the photo's own proportions, so floor light and shadow sit exactly under its base. */
+    .card-model{--ar:1.17;position:absolute;left:50%;bottom:0;width:min(100cqw,calc(100cqh * var(--ar)));aspect-ratio:var(--ar);transform:translateX(-50%);opacity:0;transition:opacity .35s ease}
+    .card-model.is-ready{opacity:1}
+    /* Bases are shot from the same 3/4 angle: front edge rising ~10deg to the right, footprint centred at ~84% height. */
+    .card-pool{position:absolute;left:-36%;right:-36%;top:62%;height:46%;transform:rotate(-8deg);background:radial-gradient(closest-side,rgba(255,246,228,calc(var(--lamp) * .24)),rgba(255,246,228,calc(var(--lamp) * .09)) 45%,transparent)}
+    .card-contact{position:absolute;left:1%;right:1%;top:75%;height:18%;transform:rotate(-10deg);background:radial-gradient(closest-side,rgba(0,0,0,calc(.5 + var(--lamp) * .4)) 55%,rgba(0,0,0,calc(.25 + var(--lamp) * .2)) 80%,transparent);filter:blur(2px)}
+    .card-stage>.card-pool{left:-10%;right:-10%;top:10%;height:90%;transform:none;background:radial-gradient(closest-side,rgba(255,246,228,calc(var(--lamp) * .08)),rgba(255,246,228,calc(var(--lamp) * .03)) 50%,transparent)}
+    .card-photo{position:absolute;inset:0;width:100%;height:100%}
     .card-photo--dim{filter:brightness(.5) saturate(.65) contrast(.95)}
-    .card-photo--lit{opacity:var(--lamp);filter:brightness(1.05) sepia(.12) saturate(1.05);-webkit-mask-image:radial-gradient(ellipse 72% 80% at 50% 40%,#000 38%,rgba(0,0,0,.55) 72%,transparent 100%);mask-image:radial-gradient(ellipse 72% 80% at 50% 40%,#000 38%,rgba(0,0,0,.55) 72%,transparent 100%)}
+    /* Lit copy: light from above, so top faces catch it and the lower part falls off into shadow. */
+    .card-photo--lit{opacity:var(--lamp);filter:sepia(.1) saturate(1.05);
+      -webkit-mask-image:linear-gradient(to bottom,#000 30%,rgba(0,0,0,.45)),radial-gradient(ellipse 80% 95% at 50% 28%,#000 45%,rgba(0,0,0,.45) 80%,transparent);-webkit-mask-composite:source-in;
+      mask-image:linear-gradient(to bottom,#000 30%,rgba(0,0,0,.45)),radial-gradient(ellipse 80% 95% at 50% 28%,#000 45%,rgba(0,0,0,.45) 80%,transparent);mask-composite:intersect}
     .track{width:100%;height:100%;overflow:visible}
     .track path{fill:none;stroke:var(--track-idle);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;transition:stroke .45s ease}
     .circuit-card .track-dim{stroke:#5d6168}
@@ -164,7 +181,7 @@
     .detail .track path{stroke:#ff2d36;stroke-width:4.5;filter:drop-shadow(0 2px 6px rgba(238,43,50,.55))}
     @keyframes trace{to{stroke-dashoffset:0}}
     .card-label{position:absolute;inset:auto 6px 0;display:flex;justify-content:space-between;align-items:baseline;gap:12px;transition:opacity .3s ease}
-    .circuit-card.active .card-label{opacity:0}
+    .circuit-card.active .card-label,.circuit-card.is-edge .card-label{opacity:0}
     .card-round{font-size:.75rem;color:var(--muted)}
     .card-name{font-size:clamp(.95rem,1.3vw,1.15rem);font-weight:800;line-height:1.1;letter-spacing:-.02em;text-transform:uppercase;text-align:right}
 
@@ -886,23 +903,35 @@
       const isCalendar = () => !!COLLECTIONS[collectionId].calendar;
       const position = c => (isCalendar() ? "Round " : "Circuito ") + pad(c.round) + " di " + CIRCUITS.length;
 
-      // Card photos load only when their card is the active one or up to two places away.
+      // Card photos load only when their card is the active one or up to three places away.
       function loadCardPhotos(card) {
-        card.querySelectorAll("img[data-src]").forEach(img => { img.src = img.dataset.src; img.removeAttribute("data-src"); });
+        const model = card.querySelector(".card-model");
+        if (!model || model.dataset.loading) return;
+        model.dataset.loading = "1";
+        const [dim, lit] = model.querySelectorAll("img");
+        dim.src = dim.dataset.src;
+        // Reveal the model (with its floor light and shadow) only once the photo can actually paint.
+        dim.decode().catch(() => {}).then(() => {
+          if (!dim.naturalWidth) return;
+          model.style.setProperty("--ar", (dim.naturalWidth / dim.naturalHeight).toFixed(4));
+          model.classList.add("is-ready");
+        });
+        lit.src = lit.dataset.src;
       }
 
       // Product photo when there is one (dim copy + spotlit copy); otherwise the SVG trace in the same light.
       const cardMedia = c => c.photo
-        ? '<img class="card-photo card-photo--dim" data-src="' + c.photo + '" alt="" decoding="async">' +
-          '<img class="card-photo card-photo--lit" data-src="' + c.photo + '" alt="" decoding="async">'
-        : '<svg class="track" viewBox="0 0 320 190"><path class="track-dim" d="' + c.path + '"></path><path class="track-lit" pathLength="1" d="' + c.path + '"></path></svg>';
+        ? '<span class="card-model"><span class="card-pool"></span><span class="card-contact"></span>' +
+          '<img class="card-photo card-photo--dim" data-src="' + c.photo + '" alt="" decoding="async">' +
+          '<img class="card-photo card-photo--lit" data-src="' + c.photo + '" alt="" decoding="async"></span>'
+        : '<span class="card-pool"></span><svg class="track" viewBox="0 0 320 190"><path class="track-dim" d="' + c.path + '"></path><path class="track-lit" pathLength="1" d="' + c.path + '"></path></svg>';
 
       function renderGallery() {
         const col = COLLECTIONS[collectionId];
         gallery.innerHTML = CIRCUITS.map((c, i) =>
           '<button class="circuit-card' + (c.photo ? " has-photo" : "") + '" type="button" data-index="' + i + '" aria-label="' + position(c) + ': ' + c.heading + ', ' + c.venue + '">' +
             '<span class="card-beam" aria-hidden="true"></span>' +
-            '<span class="card-stage" aria-hidden="true"><span class="card-pool"></span>' + cardMedia(c) + '</span>' +
+            '<span class="card-stage" aria-hidden="true">' + cardMedia(c) + '</span>' +
             '<span class="card-label" aria-hidden="true"><span class="card-round num">' + (col.calendar ? "R" : "") + pad(c.round) + '</span><span class="card-name">' + c.heading + '</span></span>' +
           '</button>'
         ).join("");
@@ -934,7 +963,8 @@
         if (!animate) gallery.style.transition = "none";
         const center = shell.clientWidth / 2;
         const card = cards[activeIndex];
-        gallery.style.transform = "translateX(" + (center - (card.offsetLeft + card.offsetWidth / 2)) + "px)";
+        const offset = center - (card.offsetLeft + card.offsetWidth / 2);
+        gallery.style.transform = "translateX(" + offset + "px)";
         if (!animate) requestAnimationFrame(() => { gallery.style.transition = ""; });
 
         $("active-country").textContent = c.heading;
@@ -945,8 +975,11 @@
           el.classList.toggle("active", i === activeIndex);
           el.classList.toggle("near", Math.abs(i - activeIndex) === 1);
           el.setAttribute("aria-current", i === activeIndex ? "true" : "false");
+          // Hide the name of cards that hang off the screen edge, so no word is shown cut in half.
+          const left = el.offsetLeft + offset;
+          el.classList.toggle("is-edge", left < 0 || left + el.offsetWidth > shell.clientWidth);
         });
-        cards.slice(Math.max(0, activeIndex - 2), activeIndex + 3).forEach(loadCardPhotos);
+        cards.slice(Math.max(0, activeIndex - 3), activeIndex + 4).forEach(loadCardPhotos);
         [0, 1, -1].forEach(step => preloadPhoto(CIRCUITS[(activeIndex + step + CIRCUITS.length) % CIRCUITS.length]));
       }
 
